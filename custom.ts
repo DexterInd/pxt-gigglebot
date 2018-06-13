@@ -111,7 +111,8 @@ namespace gigglebot {
     let right_motor_dps = WhichSpeed.Normal
     let left_dir = WhichDriveDirection.Forward
     let right_dir = WhichDriveDirection.Forward
-    let line_sensor = [0, 0, 0, 0, 0]
+    let line_sensor = [0, 0]
+    let light_sensor = [0, 0]
 
     let default_motor_power = 50;
     let trim = 0
@@ -328,16 +329,34 @@ namespace gigglebot {
     }
 
 
-    //% blockId="gigglebot_read_raw_line_sensors" block="raw line sensors (x5)"
+    //% blockId="gigglebot_read_raw_line_sensors" block="raw line sensors (x2)"
     //% advanced=true
     export function get_raw_line_sensors(): number[] {
         let buf = pins.createBuffer(1)
         buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_LINE_SENSORS)
         pins.i2cWriteBuffer(ADDR, buf)
-        let raw_buffer = pins.i2cReadBuffer(ADDR, 7)
-        for (let _i = 0; _i < line_sensor.length; _i++) {
-            line_sensor[_i] = raw_buffer.getNumber(NumberFormat.UInt8BE, _i)
+        let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
+        for (let _i = 0; _i < 2; _i++) {
+            line_sensor[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
+            line_sensor[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
+            line_sensor[_i] = 1023 - line_sensor[_i]
         }
         return line_sensor
+    }
+
+
+    //% blockId="gigglebot_read_raw_light_sensors" block="raw light sensors (x2)"
+    //% advanced=true
+    export function get_raw_light_sensors(): number[] {
+        let buf = pins.createBuffer(1)
+        buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_LIGHT_SENSORS)
+        pins.i2cWriteBuffer(ADDR, buf)
+        let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
+        for (let _i = 0; _i < 2; _i++) {
+            light_sensor[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
+            light_sensor[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
+            light_sensor[_i] = 1023 - light_sensor[_i]
+        }
+        return light_sensor
     }
 }
