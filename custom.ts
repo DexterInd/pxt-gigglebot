@@ -248,17 +248,15 @@ namespace gigglebot {
 
     /////////// MORE BLOCKS
 
-    //% blockId="gigglebot_trim" block="correct power to motors by %trim_value to the %dir"
+    //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value|%"
     //% advanced=true
-    export function set_motor_trim(trim_value: number, dir: WhichTurnDirection) {
+    export function set_motor_trim(dir: WhichTurnDirection, trim_value: number) {
         init()
         trim = trim_value
         if (dir == WhichTurnDirection.Left) {
-            // motor_power_left = default_motor_power - (trim_value )
-            motor_power_right = default_motor_power + (trim_value)
+            motor_power_left = default_motor_power - trim_value
         } if (dir == WhichTurnDirection.Right) {
-            motor_power_left = default_motor_power + (trim_value)
-            // motor_power_right = default_motor_power - (trim_value)
+            motor_power_right = default_motor_power - trim_value
         }
 
     }
@@ -285,7 +283,7 @@ namespace gigglebot {
         pins.i2cWriteBuffer(ADDR, buf, false);
     }
 
-    //% blockId="gigglebot_set_motors" block="set left power to | %left_power and right to | %right_power"
+    //% blockId="gigglebot_set_motors" block="set left power to %left_power and right to | %right_power"
     //% advanced=true
     export function set_motor_powers(left_power: number,  right_power: number) {
         init()
