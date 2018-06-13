@@ -106,7 +106,7 @@ namespace gigglebot {
     let ENCODER_TICKS_PER_ROTATION = 6
     let MOTOR_TICKS_PER_DEGREE = (MOTOR_GEAR_RATIO * ENCODER_TICKS_PER_ROTATION) / 360
 
-    let LINE_FOLLOWER_THRESHOLD = 200
+    let LINE_FOLLOWER_THRESHOLD = 500
     let MOTOR_LEFT = 0x01
     let MOTOR_RIGHT = 0x02
     let ADDR = 0x04
@@ -134,6 +134,61 @@ namespace gigglebot {
         // serial.writeLine("INIT")
     }
 
+    function follow_thin_line(){
+        let all_black = false
+        gigglebot.drive_straight(WhichDriveDirection.Forward)
+        while (!(all_black)) {
+            line_sensors = gigglebot.get_raw_line_sensors()
+            if (gigglebot.test_black_line()) {
+                all_black = true
+                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
+                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
+                gigglebot.stop()
+            } else if (gigglebot.test_white_line()) {
+                gigglebot.drive_straight(WhichDriveDirection.Forward)
+            } else if (line_sensors[0] < LINE_FOLLOWER_THRESHOLD) {
+                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+                gigglebot.stop()
+                gigglebot.turn(WhichTurnDirection.Right)
+            } else if (line_sensors[1] < LINE_FOLLOWER_THRESHOLD) {
+                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
+                gigglebot.stop()
+                gigglebot.turn(WhichTurnDirection.Left)
+            } else {
+                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
+                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
+            }
+            strip.show()
+        }
+    }
+
+    function follow_thick_line() {
+        let all_white = false
+        gigglebot.drive_straight(WhichDriveDirection.Forward)
+        while (!(all_white)) {
+            line_sensors = gigglebot.get_raw_line_sensors()
+            if (gigglebot.test_white_line()) {
+                all_white = true
+                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
+                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
+                gigglebot.stop()
+            } else if (gigglebot.test_black_line()) {
+                gigglebot.drive_straight(WhichDriveDirection.Forward)
+            } else if (line_sensors[0] > LINE_FOLLOWER_THRESHOLD) {
+                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+                gigglebot.stop()
+                gigglebot.turn(WhichTurnDirection.Right)
+            } else if (line_sensors[1] > LINE_FOLLOWER_THRESHOLD) {
+                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
+                gigglebot.stop()
+                gigglebot.turn(WhichTurnDirection.Left)
+            } else {
+                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
+                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
+            }
+            strip.show()
+        }
+    }
 
     ////////// BLOCKS
 
@@ -152,14 +207,12 @@ namespace gigglebot {
 
     //% blockId="gigglebot_turn" block="turn %turn_dir"
     export function turn(turn_dir: WhichTurnDirection) {
-        let left_dps = left_motor_dps
-        let right_dps = right_motor_dps
         if (turn_dir == WhichTurnDirection.Left) {
             set_motor_power(WhichMotor.Right, motor_power_right)
-            set_motor_power(WhichMotor.Left, motor_power_left)
+            set_motor_power(WhichMotor.Left, 0)
         }
         else {
-            set_motor_power(WhichMotor.Right, -motor_power_right)
+            set_motor_power(WhichMotor.Right, 0)
             set_motor_power(WhichMotor.Left, motor_power_left)
         }
     }
@@ -174,7 +227,7 @@ namespace gigglebot {
     }
 
     /** set speeds
-     * 
+     *
      */
     //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
     export function set_speed(motor: WhichMotor, speed: WhichSpeed) {
@@ -198,43 +251,18 @@ namespace gigglebot {
     }
 
     /**
-     * A think black line would fall between the two sensors. A thick black line would have the two sensors on top of it at all times
+     * A thin black line would fall between the two sensors. A thick black line would have the two sensors on top of it at all times
     */
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     export function follow_line(type_of_line: LineType) {
-        line_sensor = get_raw_line_sensors()
-        if (line_sensor[0] > LINE_FOLLOWER_THRESHOLD){
+        let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
+        strip.setBrightness(10)
 
+        if (type_of_line == LineType.Thin){
+            follow_thin_line()
         }
-        let all_black = false
-        while (all_black == false) {
-            if (type_of_line == LineType.Thin) {
-                if (line_sensor[0] > LINE_FOLLOWER_THRESHOLD &&
-                    line_sensor[1] > LINE_FOLLOWER_THRESHOLD) {
-                    // both sensors are reading white
-                    // go forward
-
-                    set_motor_powers(motor_power_left, motor_power_right);
-                    basic.showArrow(ArrowNames.North);
-                }
-                else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD &&
-                    line_sensor[1] < LINE_FOLLOWER_THRESHOLD) {
-                    // boths sensors has detected black
-                    set_motor_power(WhichMotor.Both, 0);
-                    all_black = true;
-                    break;
-                    basic.showArrow(ArrowNames.South);
-                }
-                else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD) {
-                    // right sensor has detected black
-                    set_motor_power(WhichMotor.Right, motor_power_right);
-                    basic.showArrow(ArrowNames.West);
-                }
-                else if (line_sensor[1] < LINE_FOLLOWER_THRESHOLD) {
-                    set_motor_power(WhichMotor.Left, motor_power_left);
-                    basic.showArrow(ArrowNames.East);
-                }
-            }
+        else {
+            follow_thick_line()
         }
     }
 
