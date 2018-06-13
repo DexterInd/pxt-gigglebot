@@ -18,12 +18,13 @@ enum WhichUniqueMotor {
     Left
 }
 enum WhichMotor {
+    //% block="both motors"
+    Both,
     //% block="right motor"
     Right,
     //% block="left motor"
-    Left,
-    //% block="both motors"
-    Both
+    Left
+
 }
 
 enum WhichDriveDirection {
@@ -49,15 +50,15 @@ enum WhichUnitSystem {
 
 enum WhichSpeed {
     //% block="slowest"
-    Slowest = 100,
+    Slowest = 25,
     //% block="slower"
-    Slower = 200,
+    Slower = 35,
     //% block="normal"
-    Normal = 300,
+    Normal = 50,
     //% block="faster"
-    Faster = 500,
+    Faster = 75,
     //% block="fastest"
-    Fastest = 700
+    Fastest = 90
 }
 
 enum I2C_Commands {
@@ -71,6 +72,12 @@ enum I2C_Commands {
     GET_MOTOR_STATUS_LEFT,
     SET_MOTOR_POWER,
     SET_MOTOR_POWERS
+}
+enum LineType {
+    //% block="thin"
+    Thin,
+    //% block="thick"
+    Thick
 }
 
 enum I2C_Sensors {
@@ -99,8 +106,7 @@ namespace gigglebot {
     let ENCODER_TICKS_PER_ROTATION = 6
     let MOTOR_TICKS_PER_DEGREE = (MOTOR_GEAR_RATIO * ENCODER_TICKS_PER_ROTATION) / 360
 
-    let LINE_FOLLOWER_WHITE_THRESHOLD = 150
-    let LINE_FOLLOWER_BLACK_THRESHOLD = 175
+    let LINE_FOLLOWER_THRESHOLD = 200
     let MOTOR_LEFT = 0x01
     let MOTOR_RIGHT = 0x02
     let ADDR = 0x04
@@ -116,6 +122,7 @@ namespace gigglebot {
 
     let default_motor_power = 50;
     let trim = 0
+    let trimmed_motor = -1
     let motor_power_left = (default_motor_power + trim)
     let motor_power_right = (default_motor_power - trim)
 
@@ -127,20 +134,6 @@ namespace gigglebot {
         // serial.writeLine("INIT")
     }
 
-
-    function is_black(sensor_reading: number): boolean {
-        if (sensor_reading > LINE_FOLLOWER_BLACK_THRESHOLD) {
-            return true
-        }
-        return false
-    }
-
-    function is_white(sensor_reading: number): boolean {
-        if (sensor_reading < LINE_FOLLOWER_WHITE_THRESHOLD) {
-            return true
-        }
-        return false
-    }
 
     ////////// BLOCKS
 
@@ -180,40 +173,67 @@ namespace gigglebot {
         set_motor_power(WhichMotor.Both, 0)
     }
 
+    /** set speeds
+     * 
+     */
+    //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
+    export function set_speed(motor: WhichMotor, speed: WhichSpeed) {
+        if (motor != WhichMotor.Left) {
+            if (trimmed_motor == WhichUniqueMotor.Right) {
+                motor_power_right = speed - trim;
+            }
+            else {
+                motor_power_right = speed;
+            }
+        }
+        if (motor != WhichMotor.Right) {
+            if (trimmed_motor == WhichUniqueMotor.Left) {
+                motor_power_left = speed - trim;
+            }
+            else {
+                motor_power_left = speed;
+            }
+        }
+
+    }
+
     /**
-     * Will follow a black line until it finds itself over a black square or a white square
+     * A think black line would fall between the two sensors. A thick black line would have the two sensors on top of it at all times
     */
-    //% blockId="gigglebot_follow_line" block="follow the black line"
-    export function follow_line() {
-        let line_status = 0b00000
-        let in_movement = true
-        while (in_movement) {
-            get_raw_line_sensors()
-            line_status = 0b00000
-            for (let _i = 0; _i < line_sensor.length; _i++) {
-                if (line_sensor[_i] > LINE_FOLLOWER_BLACK_THRESHOLD) {
-                    line_status += 0b1 << _i
+    //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
+    export function follow_line(type_of_line: LineType) {
+        line_sensor = get_raw_line_sensors()
+        if (line_sensor[0] > LINE_FOLLOWER_THRESHOLD){
+
+        }
+        let all_black = false
+        while (all_black == false) {
+            if (type_of_line == LineType.Thin) {
+                if (line_sensor[0] > LINE_FOLLOWER_THRESHOLD &&
+                    line_sensor[1] > LINE_FOLLOWER_THRESHOLD) {
+                    // both sensors are reading white
+                    // go forward
+
+                    set_motor_powers(motor_power_left, motor_power_right);
+                    basic.showArrow(ArrowNames.North);
                 }
-                else if (line_sensor[_i] < LINE_FOLLOWER_WHITE_THRESHOLD) {
-                    line_status += 0b0 << _i
+                else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD &&
+                    line_sensor[1] < LINE_FOLLOWER_THRESHOLD) {
+                    // boths sensors has detected black
+                    set_motor_power(WhichMotor.Both, 0);
+                    all_black = true;
+                    break;
+                    basic.showArrow(ArrowNames.South);
                 }
-            }
-            // if all black or all white
-            if (line_status == 0b11111 || line_status == 0b0000) {
-                stop()
-                in_movement = false
-            }
-            // if centered
-            if (line_status == 0b01110 || line_status == 0b00100) {
-                drive_straight(WhichDriveDirection.Forward)
-            }
-            // if erring to the right
-            else if (line_status == 0b11110 || line_status == 0b11100 || line_status == 0b11000 || line_status == 0b10000) {
-                turn(WhichTurnDirection.Left)
-            }
-            // if erring to the left
-            else if (line_status == 0b01111 || line_status == 0b00111 || line_status == 0b00011 || line_status == 0b00001) {
-                turn(WhichTurnDirection.Right)
+                else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD) {
+                    // right sensor has detected black
+                    set_motor_power(WhichMotor.Right, motor_power_right);
+                    basic.showArrow(ArrowNames.West);
+                }
+                else if (line_sensor[1] < LINE_FOLLOWER_THRESHOLD) {
+                    set_motor_power(WhichMotor.Left, motor_power_left);
+                    basic.showArrow(ArrowNames.East);
+                }
             }
         }
     }
@@ -226,7 +246,7 @@ namespace gigglebot {
     export function test_black_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
-            if (line_sensor[_i] < LINE_FOLLOWER_WHITE_THRESHOLD) {
+            if (line_sensor[_i] > LINE_FOLLOWER_THRESHOLD) {
                 return false
             }
         }
@@ -240,7 +260,7 @@ namespace gigglebot {
     export function test_white_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
-            if (line_sensor[_i] > LINE_FOLLOWER_BLACK_THRESHOLD) {
+            if (line_sensor[_i] < LINE_FOLLOWER_THRESHOLD) {
                 return false
             }
         }
@@ -255,8 +275,10 @@ namespace gigglebot {
         init()
         trim = trim_value
         if (dir == WhichTurnDirection.Left) {
+            trimmed_motor = WhichUniqueMotor.Left
             motor_power_left = default_motor_power - trim_value
         } if (dir == WhichTurnDirection.Right) {
+            trimmed_motor = WhichUniqueMotor.Right
             motor_power_right = default_motor_power - trim_value
         }
 
@@ -286,7 +308,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_set_motors" block="set left power to %left_power and right to | %right_power"
     //% advanced=true
-    export function set_motor_powers(left_power: number,  right_power: number) {
+    export function set_motor_powers(left_power: number, right_power: number) {
         init()
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.SET_MOTOR_POWERS)
@@ -327,6 +349,9 @@ namespace gigglebot {
     }
 
 
+    /**
+    * Reads the two line sensors
+    */
     //% blockId="gigglebot_read_raw_line_sensors" block="raw line sensors (x2)"
     //% advanced=true
     export function get_raw_line_sensors(): number[] {
