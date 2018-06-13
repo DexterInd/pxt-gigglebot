@@ -126,6 +126,8 @@ namespace gigglebot {
     let motor_power_left = (default_motor_power + trim)
     let motor_power_right = (default_motor_power - trim)
 
+    let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
+
 
     function init() {
         if (init_done == false) {
@@ -255,7 +257,6 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     export function follow_line(type_of_line: LineType) {
-        let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
         strip.setBrightness(10)
 
         if (type_of_line == LineType.Thin){
