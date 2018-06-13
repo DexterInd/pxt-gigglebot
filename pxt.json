@@ -2,7 +2,8 @@
     "name": "GiggleBot",
     "dependencies": {
         "core": "*",
-        "radio": "*"
+        "radio": "*",
+        "neopixel": "github:microsoft/pxt-neopixel#v0.6.7"
     },
     "description": "",
     "files": [
