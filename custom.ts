@@ -143,7 +143,7 @@ namespace gigglebot {
 
     ////////// BLOCKS
 
-    //% blockId="gobitgo_drive_straight" block="drive %dir"
+    //% blockId="gigglebot_drive_straight" block="drive %dir"
     export function drive_straight(dir: WhichDriveDirection) {
         let dir_factor = 1
         if (dir == WhichDriveDirection.Backward) {
@@ -156,7 +156,7 @@ namespace gigglebot {
         set_motor_power(WhichMotor.Right, motor_power_right * dir_factor)
     }
 
-    //% blockId="gobitgo_turn" block="turn %turn_dir"
+    //% blockId="gigglebot_turn" block="turn %turn_dir"
     export function turn(turn_dir: WhichTurnDirection) {
         let left_dps = left_motor_dps
         let right_dps = right_motor_dps
@@ -173,7 +173,7 @@ namespace gigglebot {
     /**
     * stops the robot
     */
-    //% blockId="gobitgo_stop" block="stop"
+    //% blockId="gigglebot_stop" block="stop"
     export function stop() {
         init()
         set_motor_power(WhichMotor.Both, 0)
@@ -182,7 +182,7 @@ namespace gigglebot {
     /**
      * Will follow a black line until it finds itself over a black square or a white square
     */
-    //% blockId="gobitgo_follow_line" block="follow the black line"
+    //% blockId="gigglebot_follow_line" block="follow the black line"
     export function follow_line() {
         let line_status = 0b00000
         let in_movement = true
@@ -221,7 +221,7 @@ namespace gigglebot {
     /**
      * Will return true if the whole line sensor is reading black, like when it's over a black square
     */
-    //% blockId="gobitgo_test_black_line" block="black line is detected"
+    //% blockId="gigglebot_test_black_line" block="black line is detected"
     export function test_black_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
@@ -235,7 +235,7 @@ namespace gigglebot {
     /**
      * Will return true if the whole line sensor is reading white, like when it's over a blank page
     */
-    //% blockId="gobitgo_test_white_line" block="white line is detected"
+    //% blockId="gigglebot_test_white_line" block="white line is detected"
     export function test_white_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
@@ -248,7 +248,7 @@ namespace gigglebot {
 
     /////////// MORE BLOCKS
 
-    //% blockId="gobitgo_trim" block="correct power to motors by %trim_value to the %dir"
+    //% blockId="gigglebot_trim" block="correct power to motors by %trim_value to the %dir"
     //% advanced=true
     export function set_motor_trim(trim_value: number, dir: WhichTurnDirection) {
         init()
@@ -263,7 +263,7 @@ namespace gigglebot {
 
     }
 
-    //% blockId="gobitgo_set_motor" block="set power on %motor| to | %power"
+    //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
     export function set_motor_power(motor: WhichMotor, power: number) {
         init()
@@ -285,7 +285,7 @@ namespace gigglebot {
         pins.i2cWriteBuffer(ADDR, buf, false);
     }
 
-    //% blockId="gobitgo_set_motors" block="set left power to | %left_power and right to | %right_power"
+    //% blockId="gigglebot_set_motors" block="set left power to | %left_power and right to | %right_power"
     //% advanced=true
     export function set_motor_powers(left_power: number,  right_power: number) {
         init()
@@ -296,7 +296,7 @@ namespace gigglebot {
         pins.i2cWriteBuffer(ADDR, buf, false);
     }
 
-    //% blockId="gobitgo_get_firmware" block="firmware version number"
+    //% blockId="gigglebot_get_firmware" block="firmware version number"
     //% advanced=true
     export function get_firmware(): number {
         /**
@@ -312,7 +312,7 @@ namespace gigglebot {
     }
 
 
-    //% blockId="gobitgo_get_voltage" block="battery voltage (mv)"
+    //% blockId="gigglebot_get_voltage" block="battery voltage (mv)"
     //% advanced=true
     export function get_voltage(): number {
         /**
@@ -328,7 +328,7 @@ namespace gigglebot {
     }
 
 
-    //% blockId="gobitgo_read_raw_line_sensors" block="raw line sensors (x5)"
+    //% blockId="gigglebot_read_raw_line_sensors" block="raw line sensors (x5)"
     //% advanced=true
     export function get_raw_line_sensors(): number[] {
         let buf = pins.createBuffer(1)
