@@ -138,7 +138,7 @@ namespace gigglebot {
         let all_black = false
         gigglebot.drive_straight(WhichDriveDirection.Forward)
         while (!(all_black)) {
-            line_sensors = gigglebot.get_raw_line_sensors()
+            line_sensor = gigglebot.get_raw_line_sensors()
             if (gigglebot.test_black_line()) {
                 all_black = true
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
@@ -146,11 +146,11 @@ namespace gigglebot {
                 gigglebot.stop()
             } else if (gigglebot.test_white_line()) {
                 gigglebot.drive_straight(WhichDriveDirection.Forward)
-            } else if (line_sensors[0] < LINE_FOLLOWER_THRESHOLD) {
+            } else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
                 gigglebot.turn(WhichTurnDirection.Right)
-            } else if (line_sensors[1] < LINE_FOLLOWER_THRESHOLD) {
+            } else if (line_sensor[1] < LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
                 gigglebot.turn(WhichTurnDirection.Left)
@@ -166,7 +166,7 @@ namespace gigglebot {
         let all_white = false
         gigglebot.drive_straight(WhichDriveDirection.Forward)
         while (!(all_white)) {
-            line_sensors = gigglebot.get_raw_line_sensors()
+            line_sensor = gigglebot.get_raw_line_sensors()
             if (gigglebot.test_white_line()) {
                 all_white = true
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
@@ -174,11 +174,11 @@ namespace gigglebot {
                 gigglebot.stop()
             } else if (gigglebot.test_black_line()) {
                 gigglebot.drive_straight(WhichDriveDirection.Forward)
-            } else if (line_sensors[0] > LINE_FOLLOWER_THRESHOLD) {
+            } else if (line_sensor[0] > LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
                 gigglebot.turn(WhichTurnDirection.Right)
-            } else if (line_sensors[1] > LINE_FOLLOWER_THRESHOLD) {
+            } else if (line_sensor[1] > LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
                 gigglebot.turn(WhichTurnDirection.Left)
