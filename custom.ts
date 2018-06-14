@@ -106,7 +106,7 @@ namespace gigglebot {
     let ENCODER_TICKS_PER_ROTATION = 6
     let MOTOR_TICKS_PER_DEGREE = (MOTOR_GEAR_RATIO * ENCODER_TICKS_PER_ROTATION) / 360
 
-    let LINE_FOLLOWER_THRESHOLD = 500
+    let LINE_FOLLOWER_THRESHOLD = 100
     let MOTOR_LEFT = 0x01
     let MOTOR_RIGHT = 0x02
     let ADDR = 0x04
@@ -136,7 +136,7 @@ namespace gigglebot {
         // serial.writeLine("INIT")
     }
 
-    function follow_thin_line(){
+    function follow_thin_line() {
         let all_black = false
         gigglebot.drive_straight(WhichDriveDirection.Forward)
         while (!(all_black)) {
@@ -151,11 +151,11 @@ namespace gigglebot {
             } else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                gigglebot.turn(WhichTurnDirection.Right)
+                set_motor_power(WhichMotor.Left, motor_power_left + 5)
             } else if (line_sensor[1] < LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                gigglebot.turn(WhichTurnDirection.Left)
+                set_motor_power(WhichMotor.Right, motor_power_right + 5)
             } else {
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
                 strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
@@ -259,7 +259,7 @@ namespace gigglebot {
     export function follow_line(type_of_line: LineType) {
         strip.setBrightness(10)
 
-        if (type_of_line == LineType.Thin){
+        if (type_of_line == LineType.Thin) {
             follow_thin_line()
         }
         else {
