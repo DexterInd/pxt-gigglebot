@@ -346,13 +346,19 @@ namespace gigglebot {
         eyes.show()
     }
 
+    //% subcategory=Lights
+    //% blockId="gigglebot_smile" block="display a  %smile_color|smile"
+    export function show_smile(smile_color: NeoPixelColors) {
+        smile.showColor(neopixel.colors(smile_color))
+    }
+    
     /**
      * Will display a rainbow of colors on the smile lights
      */
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_smile" block="display a rainbow smile"
     export function smile_rainbow() {
-        smile.showRainbow(1, 350)
+        smile.showRainbow(1, 315)
     }
 
     /**
@@ -363,12 +369,6 @@ namespace gigglebot {
     //% blockId="gigglebot_line_graph" block="display graph of %graph_value| with a max of %graph_max"
     export function show_line_graph(graph_value: number, graph_max: number) {
         smile.showBarGraph(graph_value, graph_max)
-    }
-
-    //% subcategory=Lights
-    //% blockId="gigglebot_smile" block="display smile in %smile_color"
-    export function show_smile(smile_color: NeoPixelColors){
-        smile.showColor(neopixel.colors(smile_color))
     }
 
     /////////// LINE FOLLOWER BLOCKS
