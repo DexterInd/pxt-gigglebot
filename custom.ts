@@ -80,8 +80,43 @@ enum LineType {
     Thick
 }
 
+enum LineColor {
+    //% block="black"
+    Black,
+    //% block="white"
+    White
+}
+
+enum WhichEye {
+    //% block="both eyes"
+    Both,
+    //% block="left eye"
+    Left,
+    //% block="right eye"
+    Right
+}
+
+enum EyeAction {
+    //% block="open"
+    Open,
+    //% block="close"
+    Close
+}
+
 enum I2C_Sensors {
     I2C_DISTANCE_SENSOR = 0x2A
+}
+
+enum GigglePixels {
+    Right,
+    Left,
+    SmileOne,
+    SmileTwo,
+    SmileThree,
+    SmileFour,
+    SmileFive,
+    SmileSix,
+    SmileSeven
 }
 
 /**
@@ -127,7 +162,16 @@ namespace gigglebot {
     let motor_power_right = (default_motor_power - trim)
 
     let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
-
+    let eyes = strip.range(0, 2)
+    let smile = strip.range(2, 7)
+    eyes.setBrightness(10)
+    smile.setBrightness(40)
+    for (let _i = 0; _i < GigglePixels.SmileSeven; _i++) {
+        strip.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
+    }
+    eyes.setPixelColor(GigglePixels.Right, neopixel.colors(NeoPixelColors.Blue))
+    eyes.setPixelColor(GigglePixels.Left, neopixel.colors(NeoPixelColors.Blue))
+    eyes.show()
 
     function init() {
         if (init_done == false) {
@@ -141,12 +185,12 @@ namespace gigglebot {
         gigglebot.drive_straight(WhichDriveDirection.Forward)
         while (!(all_black)) {
             line_sensor = gigglebot.get_raw_line_sensors()
-            if (gigglebot.test_black_line()) {
+            if (gigglebot.test_line(LineColor.Black)) {
                 all_black = true
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
                 strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
                 gigglebot.stop()
-            } else if (gigglebot.test_white_line()) {
+            } else if (gigglebot.test_line(LineColor.White)) {
                 gigglebot.drive_straight(WhichDriveDirection.Forward)
             } else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
@@ -169,12 +213,12 @@ namespace gigglebot {
         gigglebot.drive_straight(WhichDriveDirection.Forward)
         while (!(all_white)) {
             line_sensor = gigglebot.get_raw_line_sensors()
-            if (gigglebot.test_white_line()) {
+            if (gigglebot.test_line(LineColor.White)) {
                 all_white = true
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
                 strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
                 gigglebot.stop()
-            } else if (gigglebot.test_black_line()) {
+            } else if (gigglebot.test_line(LineColor.Black)) {
                 gigglebot.drive_straight(WhichDriveDirection.Forward)
             } else if (line_sensor[0] > LINE_FOLLOWER_THRESHOLD) {
                 strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
@@ -213,7 +257,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will make GiggleBot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
+     * Will make gigglebot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
      */
     //% blockId="gigglebot_turn_X_millisec" block="turn %turn_dir|for %delay|ms"
     export function turn_X_millisec(turn_dir: WhichTurnDirection, delay: number) {
@@ -243,7 +287,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will make GiggleBot turn left or right until told otherwise (by a stop block or a drive block).
+     * Will make gigglebot turn left or right until told otherwise (by a stop block or a drive block).
      */
     //% blockId="gigglebot_turn" block="turn %turn_dir"
     export function turn(turn_dir: WhichTurnDirection) {
@@ -291,23 +335,46 @@ namespace gigglebot {
 
     }
 
-    //% blockId="gigglebot_junke" block="follow a %type_of_line| black line"
-    //% subcategory=Lights
-    export function junk(type_of_line: LineType) {
-        strip.setBrightness(10)
+    //////////  NEOPIXEL BLOCKS
 
-        if (type_of_line == LineType.Thin) {
-            follow_thin_line()
+    //% blockId="gigglebot_open_eyes" block="%eyeaction| %which"
+    //% subcategory=Lights
+    export function open_close_eyes(eyeaction: EyeAction, which: WhichEye) {
+        if (eyeaction == EyeAction.Close) {
+            eyes.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
         }
-        else {
-            follow_thick_line()
-        }
+        eyes.show()
+    }
+
+    /**
+     * Will display a rainbow of colors on the smile lights
+     */
+    //% subcategory=Lights
+    //% blockId="gigglebot_rainbow_smile" block="display a rainbow smile"
+    export function smile_rainbow() {
+        smile.showRainbow(1, 350)
+    }
+
+    /**
+     * Use the smile lights to display a line graph of a certain value on a graph of 0 to Max value
+     */
+
+    //% subcategory=Lights
+    //% blockId="gigglebot_line_graph" block="display graph of %graph_value| with a max of %graph_max"
+    export function show_line_graph(graph_value: number, graph_max: number) {
+        smile.showBarGraph(graph_value, graph_max)
+    }
+
+    //% subcategory=Lights
+    //% blockId="gigglebot_smile" block="display smile in %smile_color"
+    export function show_smile(smile_color: NeoPixelColors){
+        smile.showColor(neopixel.colors(smile_color))
     }
 
     /////////// LINE FOLLOWER BLOCKS
     /**
-     * A thin black line would fall between the two sensors. The GiggleBot will stop when both sensors are reading black.
-     * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
+     * A thin black line would fall between the two sensors. The gigglebot will stop when both sensors are reading black.
+     * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
     */
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     //% subcategory=Sensors
@@ -323,50 +390,41 @@ namespace gigglebot {
     }
 
     /**
-     * Will return true if the whole line sensor is reading black, like when it's over a black square
+     * Will return true if the whole line sensor is reading either black or white.
     */
-    //% blockId="gigglebot_test_black_line" block="black line is detected"
+    //% blockId="gigglebot_test_line" block="%which|line is detected"
     //% subcategory=Sensors
-    export function test_black_line(): boolean {
+    export function test_line(color: LineColor): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
-            if (line_sensor[_i] > LINE_FOLLOWER_THRESHOLD) {
+            if (color == LineColor.Black && line_sensor[_i] > LINE_FOLLOWER_THRESHOLD) {
+                return false
+            }
+            if (color == LineColor.White && line_sensor[_i] < LINE_FOLLOWER_THRESHOLD) {
                 return false
             }
         }
         return true
     }
 
-    /**
-     * Will return true if the whole line sensor is reading white, like when it's over a blank page
-    */
-    //% blockId="gigglebot_test_white_line" block="white line is detected"
-    //% subcategory=Sensors
-    export function test_white_line(): boolean {
-        get_raw_line_sensors()
-        for (let _i = 0; _i < line_sensor.length; _i++) {
-            if (line_sensor[_i] < LINE_FOLLOWER_THRESHOLD) {
-                return false
-            }
-        }
-        return true
-    }
 
     /**
     * Reads left or right line sensor
     */
     //% blockId="gigglebot_read_line_sensors" block="%which|line sensor"
     //% subcategory=Sensors
+    //% blockGap=50
     export function get_line_sensor(which: WhichTurnDirection): number {
         get_raw_line_sensors()
         return line_sensor[which]
     }
 
     /**
-     * Will follow a spotlight shone on its eyes. If the spotlight disappears the GiggleBot will stop.
+     * Will follow a spotlight shone on its eyes. If the spotlight disappears the gigglebot will stop.
      */
     //% blockId="gigglebot_follow_light" block="follow light"
     //% subcategory=Sensors
+
     export function follow_light() {
         // take ambient reading
         let ambient_lights = get_raw_light_sensors();
