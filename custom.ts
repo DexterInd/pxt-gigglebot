@@ -291,13 +291,26 @@ namespace gigglebot {
 
     }
 
+    //% blockId="gigglebot_junke" block="follow a %type_of_line| black line"
+    //% subcategory=Lights
+    export function junk(type_of_line: LineType) {
+        strip.setBrightness(10)
+
+        if (type_of_line == LineType.Thin) {
+            follow_thin_line()
+        }
+        else {
+            follow_thick_line()
+        }
+    }
+
     /////////// LINE FOLLOWER BLOCKS
     /**
      * A thin black line would fall between the two sensors. The GiggleBot will stop when both sensors are reading black.
      * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
     */
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
-    //% subcategory=OnBoardSensors
+    //% subcategory=Sensors
     export function follow_line(type_of_line: LineType) {
         strip.setBrightness(10)
 
@@ -313,7 +326,7 @@ namespace gigglebot {
      * Will return true if the whole line sensor is reading black, like when it's over a black square
     */
     //% blockId="gigglebot_test_black_line" block="black line is detected"
-    //% subcategory=OnBoardSensors
+    //% subcategory=Sensors
     export function test_black_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
@@ -328,7 +341,7 @@ namespace gigglebot {
      * Will return true if the whole line sensor is reading white, like when it's over a blank page
     */
     //% blockId="gigglebot_test_white_line" block="white line is detected"
-    //% subcategory=OnBoardSensors
+    //% subcategory=Sensors
     export function test_white_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
@@ -343,7 +356,7 @@ namespace gigglebot {
     * Reads left or right line sensor
     */
     //% blockId="gigglebot_read_line_sensors" block="%which|line sensor"
-    //% subcategory=OnBoardSensors
+    //% subcategory=Sensors
     export function get_line_sensor(which: WhichTurnDirection): number {
         get_raw_line_sensors()
         return line_sensor[which]
@@ -353,7 +366,7 @@ namespace gigglebot {
      * Will follow a spotlight shone on its eyes. If the spotlight disappears the GiggleBot will stop.
      */
     //% blockId="gigglebot_follow_light" block="follow light"
-    //% subcategory=OnBoardSensors
+    //% subcategory=Sensors
     export function follow_light() {
         // take ambient reading
         let ambient_lights = get_raw_light_sensors();
@@ -381,12 +394,18 @@ namespace gigglebot {
     * Reads left or right light sensor
     */
     //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
-    //% subcategory=OnBoardSensors
+    //% subcategory=Sensors
     export function get_light_sensor(which: WhichTurnDirection): number {
         get_raw_light_sensors()
         return light_sensor[which]
     }
 
+    /////////// SERVO BLOCKS
+
+    //% blockId="gigglebot_servo" block="%which|servo to |%degree"
+    //% subcategory=Servos
+    export function servo(which: WhichTurnDirection, degree: number) {
+    }
 
     /////////// MORE BLOCKS
 
