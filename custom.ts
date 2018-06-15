@@ -119,6 +119,17 @@ enum GigglePixels {
     SmileSeven
 }
 
+enum ServoAction {
+    //% block="right"
+    Right,
+    //% block="left"
+    Left,
+    //% block="both in synchro"
+    Both,
+    //% block="both in mirror"
+    Mirror
+}
+
 /**
  * Custom blocks
  */
@@ -460,9 +471,23 @@ namespace gigglebot {
 
     /////////// SERVO BLOCKS
 
-    //% blockId="gigglebot_servo" block="%which|servo to |%degree"
+    //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
     //% subcategory=Servos
-    export function servo(which: WhichTurnDirection, degree: number) {
+    export function servo(which: ServoAction, degree: number) {
+        if (which == ServoAction.Right) {
+            pins.servoWritePin(AnalogPin.P13, degree)
+        }
+        else if (which == ServoAction.Left) {
+            pins.servoWritePin(AnalogPin.P14, degree)
+        }
+        else if (which == ServoAction.Both) {
+            pins.servoWritePin(AnalogPin.P13, degree)
+            pins.servoWritePin(AnalogPin.P14, degree)
+        }
+        else if (which == ServoAction.Mirror) {
+            pins.servoWritePin(AnalogPin.P13, degree)
+            pins.servoWritePin(AnalogPin.P14, 180 - degree)
+        }
     }
 
     /////////// MORE BLOCKS
