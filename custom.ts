@@ -194,6 +194,42 @@ namespace gigglebot {
 
     ////////// BLOCKS
 
+    /**
+     * Will let gigglebot move forward or backward for a number of milliseconds. 
+     * Distance covered during that time is related to the freshness of the batteries.
+     */
+    //% blockId="gigglebot_drive_x_millisec" block="drive %dir|for %delay|ms"
+    export function drive_X_millisec(dir: WhichDriveDirection, delay: number) {
+        let dir_factor = 1
+        if (dir == WhichDriveDirection.Backward) {
+            dir_factor = -1
+        }
+        if (dir == WhichDriveDirection.Forward) {
+            dir_factor = 1
+        }
+        set_motor_powers(motor_power_left * dir_factor, motor_power_right * dir_factor)
+        basic.pause(delay)
+        set_motor_power(WhichMotor.Both, 0)
+    }
+
+    /**
+     * Will make GiggleBot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
+     */
+    //% blockId="gigglebot_turn_X_millisec" block="turn %turn_dir|for %delay|ms"
+    export function turn_X_millisec(turn_dir: WhichTurnDirection, delay: number) {
+        if (turn_dir == WhichTurnDirection.Left) {
+            set_motor_powers(0, motor_power_right)
+        }
+        else {
+            set_motor_powers(motor_power_left, 0)
+        }
+        basic.pause(delay)
+        set_motor_power(WhichMotor.Both, 0)
+    }
+
+    /**
+     * Will let gigglebot move forward or backward until told otherwise (either by a stop block or a turn block).
+     */
     //% blockId="gigglebot_drive_straight" block="drive %dir"
     export function drive_straight(dir: WhichDriveDirection) {
         let dir_factor = 1
@@ -203,24 +239,24 @@ namespace gigglebot {
         if (dir == WhichDriveDirection.Forward) {
             dir_factor = 1
         }
-        set_motor_power(WhichMotor.Left, motor_power_left * dir_factor)
-        set_motor_power(WhichMotor.Right, motor_power_right * dir_factor)
+        set_motor_powers(motor_power_left * dir_factor, motor_power_right * dir_factor)
     }
 
+    /**
+     * Will make GiggleBot turn left or right until told otherwise (by a stop block or a drive block).
+     */
     //% blockId="gigglebot_turn" block="turn %turn_dir"
     export function turn(turn_dir: WhichTurnDirection) {
         if (turn_dir == WhichTurnDirection.Left) {
-            set_motor_power(WhichMotor.Right, motor_power_right)
-            set_motor_power(WhichMotor.Left, 0)
+            set_motor_powers(0, motor_power_right)
         }
         else {
-            set_motor_power(WhichMotor.Right, 0)
-            set_motor_power(WhichMotor.Left, motor_power_left)
+            set_motor_powers(motor_power_left, 0)
         }
     }
 
     /**
-    * stops the robot
+    * stops the robot.
     */
     //% blockId="gigglebot_stop" block="stop"
     export function stop() {
@@ -228,8 +264,11 @@ namespace gigglebot {
         set_motor_power(WhichMotor.Both, 0)
     }
 
-    /** set speeds
-     *
+    /** 
+     * You can set the speed for each individual motor or both together. The higher the speed the less control the robot has. 
+     * You may need to correct the robot (see block in "more..." section).  A faster robot needs more correction than a slower one.
+     * If you want to follow a line,  it will work best at a lower speed.
+     * Actual speed is dependent on the freshness of the batteries.
      */
     //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
     export function set_speed(motor: WhichMotor, speed: WhichSpeed) {
@@ -252,10 +291,13 @@ namespace gigglebot {
 
     }
 
+    /////////// LINE FOLLOWER BLOCKS
     /**
-     * A thin black line would fall between the two sensors. A thick black line would have the two sensors on top of it at all times
+     * A thin black line would fall between the two sensors. The GiggleBot will stop when both sensors are reading black.
+     * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
     */
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
+    //% subcategory=OnBoardSensors
     export function follow_line(type_of_line: LineType) {
         strip.setBrightness(10)
 
@@ -267,11 +309,11 @@ namespace gigglebot {
         }
     }
 
-
     /**
      * Will return true if the whole line sensor is reading black, like when it's over a black square
     */
     //% blockId="gigglebot_test_black_line" block="black line is detected"
+    //% subcategory=OnBoardSensors
     export function test_black_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
@@ -286,6 +328,7 @@ namespace gigglebot {
      * Will return true if the whole line sensor is reading white, like when it's over a blank page
     */
     //% blockId="gigglebot_test_white_line" block="white line is detected"
+    //% subcategory=OnBoardSensors
     export function test_white_line(): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
@@ -295,6 +338,55 @@ namespace gigglebot {
         }
         return true
     }
+
+    /**
+    * Reads left or right line sensor
+    */
+    //% blockId="gigglebot_read_line_sensors" block="%which|line sensor"
+    //% subcategory=OnBoardSensors
+    export function get_line_sensor(which: WhichTurnDirection): number {
+        get_raw_line_sensors()
+        return line_sensor[which]
+    }
+
+    /**
+     * Will follow a spotlight shone on its eyes. If the spotlight disappears the GiggleBot will stop.
+     */
+    //% blockId="gigglebot_follow_light" block="follow light"
+    //% subcategory=OnBoardSensors
+    export function follow_light() {
+        // take ambient reading
+        let ambient_lights = get_raw_light_sensors();
+        let current_lights = ambient_lights;
+        let diff = 0
+        while ((current_lights[0] > ambient_lights[0]) || (current_lights[1] > ambient_lights[1])) {
+            current_lights = get_raw_light_sensors()
+            diff = (current_lights[0] - current_lights[1]) / 10;
+            serial.writeLine("" + current_lights[0] + ". " + current_lights[0] + " diff:" + diff)
+            if (current_lights[0] > current_lights[1]) {
+                // it's brighter to the right
+                set_motor_powers(motor_power_left, motor_power_right - diff)
+                serial.writeLine("Turn Right")
+            }
+            else {
+                // it's brighter to the left
+                serial.writeLine("Turn Left")
+                set_motor_powers(motor_power_left + diff, motor_power_right)
+            }
+        }
+        set_motor_power(WhichMotor.Both, 0)
+    }
+
+    /**
+    * Reads left or right light sensor
+    */
+    //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
+    //% subcategory=OnBoardSensors
+    export function get_light_sensor(which: WhichTurnDirection): number {
+        get_raw_light_sensors()
+        return light_sensor[which]
+    }
+
 
     /////////// MORE BLOCKS
 
@@ -335,7 +427,7 @@ namespace gigglebot {
         pins.i2cWriteBuffer(ADDR, buf, false);
     }
 
-    //% blockId="gigglebot_set_motors" block="set left power to %left_power and right to | %right_power"
+    //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
     export function set_motor_powers(left_power: number, right_power: number) {
         init()
@@ -344,6 +436,16 @@ namespace gigglebot {
         buf.setNumber(NumberFormat.UInt8BE, 1, right_power)
         buf.setNumber(NumberFormat.UInt8BE, 2, left_power)
         pins.i2cWriteBuffer(ADDR, buf, false);
+    }
+
+    /**
+     * Displays the current battery voltage. Anything lower than 3.4 is too low to run the motors
+     */
+    //% blockId="gigglebot_show_voltage" block="show battery voltage (mv)"
+    //% advanced=true
+    export function show_voltage() {
+        let voltage = get_voltage()
+        basic.showNumber(voltage)
     }
 
     //% blockId="gigglebot_get_firmware" block="firmware version number"
@@ -360,7 +462,6 @@ namespace gigglebot {
         let val = pins.i2cReadBuffer(ADDR, 2)
         return val.getNumber(NumberFormat.UInt16BE, 0);
     }
-
 
     //% blockId="gigglebot_get_voltage" block="battery voltage (mv)"
     //% advanced=true
@@ -409,6 +510,7 @@ namespace gigglebot {
             light_sensor[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
             light_sensor[_i] = 1023 - light_sensor[_i]
         }
+        serial.writeNumbers(light_sensor)
         return light_sensor
     }
 }
