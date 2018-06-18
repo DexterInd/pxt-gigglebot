@@ -250,7 +250,7 @@ namespace gigglebot {
     ////////// BLOCKS
 
     /**
-     * Will let gigglebot move forward or backward for a number of milliseconds. 
+     * Will let gigglebot move forward or backward for a number of milliseconds.
      * Distance covered during that time is related to the freshness of the batteries.
      */
     //% blockId="gigglebot_drive_x_millisec" block="drive %dir|for %delay|ms"
@@ -319,8 +319,8 @@ namespace gigglebot {
         set_motor_power(WhichMotor.Both, 0)
     }
 
-    /** 
-     * You can set the speed for each individual motor or both together. The higher the speed the less control the robot has. 
+    /**
+     * You can set the speed for each individual motor or both together. The higher the speed the less control the robot has.
      * You may need to correct the robot (see block in "more..." section).  A faster robot needs more correction than a slower one.
      * If you want to follow a line,  it will work best at a lower speed.
      * Actual speed is dependent on the freshness of the batteries.
@@ -350,6 +350,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_open_eyes" block="%eyeaction| %which"
     //% subcategory=Lights
+    //% blockSetVariable=eyes
     export function open_close_eyes(eyeaction: EyeAction, which: WhichEye) {
         if (eyeaction == EyeAction.Close) {
             eyes.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
@@ -359,17 +360,52 @@ namespace gigglebot {
 
     //% subcategory=Lights
     //% blockId="gigglebot_smile" block="display a  %smile_color|smile"
+    //% blockSetVariable=smile
     export function show_smile(smile_color: NeoPixelColors) {
         smile.showColor(neopixel.colors(smile_color))
     }
-    
+
     /**
      * Will display a rainbow of colors on the smile lights
      */
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_smile" block="display a rainbow smile"
+    //% blockSetVariable=smile
     export function smile_rainbow() {
         smile.showRainbow(1, 315)
+    }
+
+    /**
+     * Displays the colors of the rainbow on the lights and cycles through them
+     * @param nbcycles how many times the rainbow will do a full cycle; eg: 3, 5, 10
+     */
+    //% subcategory=Lights
+    //% blockId="gigglebot_rainbow_cycle" block="cycle rainbow %nbcycles| times "
+    //% blockSetVariable=smile
+    export function smile_cycle_rainbow(nbcycles: number = 3): void {
+        smile.showRainbow(1, 315)
+        for (let _i = 0; _i < (nbcycles * 7); _i++) {
+            basic.pause(100)
+            smile.rotate(1)
+            smile.show()
+        }
+    }
+
+    /**
+     * Displays the colors of the rainbow on the lights and cycles through them based on times
+     * @param delay how long to wait(in ms) before cycling; eg: 100, 200
+     * @param cycle_length how long (in ms) the cycling will last for: eg: 3000
+     */
+    //% subcategory=Lights
+    //% blockSetVariable=smile
+    //% blockId="gigglebot_rainbow_cycle_time" block="cycle rainbow every %delay| ms for %cycle_length| ms "
+    export function smile_cycle_rainbow_time(delay: number = 100, cycle_length: number = 3000) {
+        smile.showRainbow(1, 315)
+        for (let _i = 0; _i < (cycle_length / delay); _i++) {
+            basic.pause(delay)
+            smile.rotate(1)
+            smile.show()
+        }
     }
 
     /**
@@ -377,6 +413,7 @@ namespace gigglebot {
      */
 
     //% subcategory=Lights
+    //% blockSetVariable=smile
     //% blockId="gigglebot_line_graph" block="display graph of %graph_value| with a max of %graph_max"
     export function show_line_graph(graph_value: number, graph_max: number) {
         smile.showBarGraph(graph_value, graph_max)
@@ -389,6 +426,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     //% subcategory=Sensors
+    //% group=LineFollower
     export function follow_line(type_of_line: LineType) {
         strip.setBrightness(10)
 
@@ -405,6 +443,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_test_line" block="%which|line is detected"
     //% subcategory=Sensors
+    //% group=LineFollower
     export function test_line(color: LineColor): boolean {
         get_raw_line_sensors()
         for (let _i = 0; _i < line_sensor.length; _i++) {
@@ -424,7 +463,8 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_read_line_sensors" block="%which|line sensor"
     //% subcategory=Sensors
-    //% blockGap=50
+    //% group=LineFollower
+    //% blockGap=40
     export function get_line_sensor(which: WhichTurnDirection): number {
         get_raw_line_sensors()
         return line_sensor[which]
@@ -435,6 +475,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_follow_light" block="follow light"
     //% subcategory=Sensors
+    //% group=LightSensor
 
     export function follow_light() {
         // take ambient reading
@@ -464,6 +505,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
     //% subcategory=Sensors
+    //% group=LightSensor
     export function get_light_sensor(which: WhichTurnDirection): number {
         get_raw_light_sensors()
         return light_sensor[which]
