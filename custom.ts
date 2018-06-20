@@ -344,7 +344,7 @@ namespace gigglebot {
      * @param radio_block eg: 1
      */
     //% blockId="gigglebot_remote_control"
-    //% block="external remote control %radio_block"
+    //% block="external remote control, group %radio_block"
     export function remote_control(radio_block: number): void {
         let power_left = 50
         let power_right = 50
@@ -365,7 +365,7 @@ namespace gigglebot {
     //% mutate=objectdestructuring
     //% mutateText=Packet
     //% mutateDefaults="radio_block"
-    //% blockId=gigglebot_remote block="on remote control received %radio_block"
+    //% blockId=gigglebot_remote block="on received remote control, group %radio_block"
     export function onRemoteControl(radio_block: number, cb: (packet: radio.Packet) => void) {
         radio.setGroup(radio_block)
         radio.onDataReceived(() => {
