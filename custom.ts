@@ -167,11 +167,10 @@ namespace gigglebot {
     let light_sensor = [0, 0]
 
     let default_motor_power = 50;
-    let trim = 0
-    let trimmed_motor = -1
-    let motor_power_left = (default_motor_power + trim)
-    let motor_power_right = (default_motor_power - trim)
-
+    let trim_left = 0
+    let trim_right = 0
+    let motor_power_left = (default_motor_power - trim_left)
+    let motor_power_right = (default_motor_power - trim_right)
     let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
     let eyes = strip.range(0, 2)
     let smile = strip.range(2, 7)
@@ -326,24 +325,74 @@ namespace gigglebot {
      * Actual speed is dependent on the freshness of the batteries.
      */
     //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
+    //% blockGap=32
     export function set_speed(motor: WhichMotor, speed: WhichSpeed) {
         if (motor != WhichMotor.Left) {
-            if (trimmed_motor == WhichUniqueMotor.Right) {
-                motor_power_right = speed - trim;
-            }
-            else {
-                motor_power_right = speed;
-            }
+            motor_power_right = speed - trim_right;
         }
         if (motor != WhichMotor.Right) {
-            if (trimmed_motor == WhichUniqueMotor.Left) {
-                motor_power_left = speed - trim;
-            }
-            else {
-                motor_power_left = speed;
-            }
+            motor_power_left = speed - trim_left;
         }
+        set_motor_powers(motor_power_left, motor_power_right)
+    }
 
+
+    /**
+     * Use this block to turn a second Micro:bit into a remote controller.
+     * Easiest approach is to put this block inside a "Forever" block.
+     * You will need to use the "remote receiver mode" block on the GiggleBot itself.
+     * @param radio_block eg: 1
+     */
+    //% blockId="gigglebot_remote_control"
+    //% block="external remote control %radio_block"
+    export function remote_control(radio_block: number): void {
+        let power_left = 50
+        let power_right = 50
+        radio.setGroup(radio_block)
+        power_left = ((50 * input.acceleration(Dimension.Y)) / 1024) + ((50 * input.acceleration(Dimension.X)) / 1024)
+        power_right = ((50 * input.acceleration(Dimension.Y)) / 1024) - ((50 * input.acceleration(Dimension.X)) / 1024)
+        radio.sendValue("left", power_left)
+        basic.pause(10)
+        radio.sendValue("right", power_right)
+    }
+
+    const packet = new radio.Packet();
+    /**
+     * Use this block on the GiggleBot to control it with a second micro:bit
+     * @param radio_block eg:1
+     *
+     */
+    //% mutate=objectdestructuring
+    //% mutateText=Packet
+    //% mutateDefaults="radio_block"
+    //% blockId=gigglebot_remote block="on remote control received %radio_block"
+    export function onRemoteControl(radio_block: number, cb: (packet: radio.Packet) => void) {
+        radio.setGroup(radio_block)
+        radio.onDataReceived(() => {
+            radio.receiveNumber();
+            packet.receivedNumber = radio.receivedNumber();
+            packet.time = radio.receivedTime();
+            packet.serial = radio.receivedSerial();
+            packet.receivedString = radio.receivedString();
+            packet.receivedBuffer = radio.receivedBuffer();
+            packet.signal = radio.receivedSignalStrength();
+            cb(packet)
+        });
+    }
+
+    /**
+     * @param
+     */
+    //% blockId="gigglebot_remote_control_action"
+    //% block="do remote control action"
+    export function remote_control_action(): void {
+        if (packet.receivedString == "left") {
+            motor_power_left = packet.receivedNumber - trim_left
+        }
+        if (packet.receivedString == "right") {
+            motor_power_right = packet.receivedNumber - trim_right
+        }
+        set_motor_powers(motor_power_left, motor_power_right)
     }
 
     //////////  NEOPIXEL BLOCKS
@@ -534,19 +583,19 @@ namespace gigglebot {
 
     /////////// MORE BLOCKS
 
-    //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value|%"
+    //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
     //% advanced=true
     export function set_motor_trim(dir: WhichTurnDirection, trim_value: number) {
         init()
-        trim = trim_value
-        if (dir == WhichTurnDirection.Left) {
-            trimmed_motor = WhichUniqueMotor.Left
-            motor_power_left = default_motor_power - trim_value
-        } if (dir == WhichTurnDirection.Right) {
-            trimmed_motor = WhichUniqueMotor.Right
-            motor_power_right = default_motor_power - trim_value
-        }
 
+        if (dir == WhichTurnDirection.Left) {
+            trim_left = trim_value
+            motor_power_left = default_motor_power - trim_left
+        }
+        if (dir == WhichTurnDirection.Right) {
+            trim_right = trim_value
+            motor_power_right = default_motor_power - trim_right
+        }
     }
 
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
