@@ -1506,7 +1506,6 @@ namespace gigglebot {
     //% group=LineFollower
     export function follow_line(type_of_line: LineType) {
         strip.setBrightness(10)
-
         if (type_of_line == LineType.Thin) {
             follow_thin_line()
         }
@@ -1553,28 +1552,22 @@ namespace gigglebot {
     //% blockId="gigglebot_follow_light" block="follow light"
     //% subcategory=Sensors
     //% group=LightSensor
-
     export function follow_light() {
         // take ambient reading
-        let ambient_lights = get_raw_light_sensors();
-        let current_lights = ambient_lights;
+        let current_lights = get_raw_light_sensors();
         let diff = 0
-        while ((current_lights[0] > ambient_lights[0]) || (current_lights[1] > ambient_lights[1])) {
-            current_lights = get_raw_light_sensors()
-            diff = (current_lights[0] - current_lights[1]) / 10;
-            serial.writeLine("" + current_lights[0] + ". " + current_lights[0] + " diff:" + diff)
-            if (current_lights[0] > current_lights[1]) {
-                // it's brighter to the right
-                set_motor_powers(motor_power_left, motor_power_right - diff)
-                serial.writeLine("Turn Right")
-            }
-            else {
-                // it's brighter to the left
-                serial.writeLine("Turn Left")
-                set_motor_powers(motor_power_left + diff, motor_power_right)
-            }
+        diff = (current_lights[0] - current_lights[1]) / 10;
+        // serial.writeLine("" + current_lights[0] + ". " + current_lights[0] + " diff:" + diff)
+        if (current_lights[0] > current_lights[1]) {
+            // it's brighter to the right
+            set_motor_powers(motor_power_left, motor_power_right - diff)
+            // serial.writeLine("Turn Right")
         }
-        set_motor_power(WhichMotor.Both, 0)
+        else {
+            // it's brighter to the left
+            serial.writeLine("Turn Left")
+            set_motor_powers(motor_power_left + diff, motor_power_right)
+        }
     }
 
     /**
