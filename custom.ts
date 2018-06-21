@@ -570,7 +570,7 @@ namespace gigglebot {
         // set final range signal rate limit to 0.1 MCPS (million counts per second)
         distanceSensor.DS_set_signal_rate_limit_raw(12) // 0.1 * (1 << 7) = 12.8
         distanceSensor.DS_set_vcsel_pulse_period(distanceSensor.DS_VcselPeriodPreRange, 18)
-        distanceSensor.DS_set_vcsel_pulse_period(distancesensor.DS_VcselPeriodFinalRange, 14)
+        distanceSensor.DS_set_vcsel_pulse_period(distanceSensor.DS_VcselPeriodFinalRange, 14)
         distanceSensor.DS_start_continuous(0)
     }
 
