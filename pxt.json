@@ -8,8 +8,6 @@
     },
     "description": "",
     "files": [
-        "main.ts",
-        "README.md",
         "custom.ts"
     ]
 }
