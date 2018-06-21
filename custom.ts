@@ -565,13 +565,13 @@ namespace gigglebot {
     //% subcategory=Sensors
     //% group=LightSensor
     export function DSconfigure() {
-        distanceSensor.DS_init()
+        distanceSensor.init()
         // set to long range (about 2.3 meters)
         // set final range signal rate limit to 0.1 MCPS (million counts per second)
-        distanceSensor.DS_set_signal_rate_limit_raw(12) // 0.1 * (1 << 7) = 12.8
-        distanceSensor.DS_set_vcsel_pulse_period(distanceSensor.DS_VcselPeriodPreRange, 18)
-        distanceSensor.DS_set_vcsel_pulse_period(distanceSensor.DS_VcselPeriodFinalRange, 14)
-        distanceSensor.DS_start_continuous(0)
+        distanceSensor.setSignalRateLimitRaw(12) // 0.1 * (1 << 7) = 12.8
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodPreRange(), 18)
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodFinalRange(), 14)
+        distanceSensor.startContinuous(0)
     }
 
     /**
@@ -581,7 +581,7 @@ namespace gigglebot {
     //% subcategory=Sensors
     //% group=LightSensor
     export function DSreadRangeContinuous(): number {
-        return distanceSensor.DS_read_range_continuous_millimeters()
+        return distanceSensor.readRangeContinuousMillimeters()
     }
 
     /**
@@ -593,7 +593,7 @@ namespace gigglebot {
     //% blockGap=32
     export function DStestForObstacle(inequality: Inequality, dist: number): boolean {
         if (inequality == Inequality.Closer) {
-            if (distanceSensor.DS_read_range_continuous_millimeters() < dist) {
+            if (distanceSensor.readRangeContinuousMillimeters() < dist) {
                 return true
             }
             else {
@@ -601,7 +601,7 @@ namespace gigglebot {
             }
         }
         else if (inequality == Inequality.Farther) {
-            if (distanceSensor.DS_read_range_continuous_millimeters() > dist) {
+            if (distanceSensor.readRangeContinuousMillimeters() > dist) {
                 return true
             }
             else {
@@ -612,7 +612,7 @@ namespace gigglebot {
     }
 
     export function DSreadRangeSingle(): number {
-        return distanceSensor.DS_read_range_single_millimeters()
+        return distanceSensor.readRangeSingleMillimeters()
     }
 
     /////////// SERVO BLOCKS
