@@ -4,7 +4,8 @@
     "dependencies": {
         "core": "*",
         "radio": "*",
-        "neopixel": "github:microsoft/pxt-neopixel#v0.6.7"
+        "neopixel": "github:microsoft/pxt-neopixel#v0.6.7",
+        "distanceSensor": "github:cleoqc/pxt-distancesensor#v0.0.1"
     },
     "description": "",
     "files": [
