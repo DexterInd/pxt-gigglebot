@@ -9,6 +9,7 @@
     },
     "description": "",
     "files": [
-        "custom.ts"
+        "custom.ts",
+        "README.md"
     ]
 }
