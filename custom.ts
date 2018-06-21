@@ -1614,7 +1614,7 @@ namespace gigglebot {
      */
     //% subcategory=Sensors
     //% group=LightSensor
-    //% blockId="DS_test_for_obstacle" block="obstacle is %inequality| %dist mm"
+    //% blockId="DS_test_for_obstacle" block="obstacle is %inequality| %dist| mm"
     //% blockGap=32
     export function DS_test_for_obstacle(inequality: Inequality, dist: number): boolean {
         if (inequality == Inequality.Closer) {
