@@ -169,14 +169,19 @@ namespace gigglebot {
 
     let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
     let eyes = strip.range(0, 2)
+    let left_eye_neopixel = strip.range(1, 1)
+    let right_eye_neopixel = strip.range(0, 1)
     let smile = strip.range(2, 7)
     eyes.setBrightness(10)
+    left_eye_neopixel.setBrightness(10)
+    right_eye_neopixel.setBrightness(10)
     smile.setBrightness(40)
     for (let _i = 0; _i < GigglePixels.SmileSeven; _i++) {
         strip.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
     }
-    eyes.setPixelColor(GigglePixels.Right, neopixel.colors(NeoPixelColors.Blue))
-    eyes.setPixelColor(GigglePixels.Left, neopixel.colors(NeoPixelColors.Blue))
+    strip.show()
+    left_eye_neopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+    right_eye_neopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
     eyes.show()
 
 
@@ -394,23 +399,34 @@ namespace gigglebot {
 
     //////////  NEOPIXEL BLOCKS
 
-    //% blockId="gigglebot_open_eyes" block="%eyeaction| %which"
+    /**
+     * Let's you use the blocks in the neopixel category for better control over the eyes.
+     */
+    //% blockId="gigglebot_eye" block="%which|eye"
     //% subcategory=Lights
-    //% blockSetVariable=eyes
-    export function open_close_eyes(eyeaction: EyeAction, which: WhichEye): neopixel.Strip {
-        if (eyeaction == EyeAction.Close) {
-            eyes.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
-        }
-        eyes.show()
-        return eyes
+    export function which_eye(which: WhichEye): neopixel.Strip {
+
+        if (which == WhichEye.Left)
+            return left_eye_neopixel
+        else if (which == WhichEye.Right)
+            return right_eye_neopixel
+        else
+            return eyes
+    }
+
+    /**
+     * Let's you use the blocks in the neopixel category for better control over the smile/rainbow.
+     */
+    //% subcategory=Lights
+    //% blockId="gigglebot_get_smile" block="smile"
+    export function share_smile(): neopixel.Strip {
+        return smile
     }
 
     //% subcategory=Lights
     //% blockId="gigglebot_smile" block="display a  %smile_color|smile"
-    //% blockSetVariable=smile
-    export function show_smile(smile_color: NeoPixelColors): neopixel.Strip {
+    export function show_smile(smile_color: NeoPixelColors) {
         smile.showColor(neopixel.colors(smile_color))
-        return smile
     }
 
     /**
@@ -418,10 +434,8 @@ namespace gigglebot {
      */
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_smile" block="display a rainbow smile"
-    //% blockSetVariable=smile
-    export function smile_rainbow(): neopixel.Strip {
+    export function smile_rainbow() {
         smile.showRainbow(1, 315)
-        return smile
     }
 
     /**
@@ -431,14 +445,13 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_cycle" block="cycle rainbow %nbcycles| times "
     //% blockSetVariable=smile
-    export function smile_cycle_rainbow(nbcycles: number = 3): neopixel.Strip {
+    export function smile_cycle_rainbow(nbcycles: number = 3) {
         smile.showRainbow(1, 315)
         for (let _i = 0; _i < (nbcycles * 7); _i++) {
             basic.pause(100)
             smile.rotate(1)
             smile.show()
         }
-        return smile
     }
 
     /**
@@ -449,14 +462,13 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockSetVariable=smile
     //% blockId="gigglebot_rainbow_cycle_time" block="cycle rainbow every %delay| ms for %cycle_length| ms "
-    export function smile_cycle_rainbow_time(delay: number = 100, cycle_length: number = 3000): neopixel.Strip {
+    export function smile_cycle_rainbow_time(delay: number = 100, cycle_length: number = 3000) {
         smile.showRainbow(1, 315)
         for (let _i = 0; _i < (cycle_length / delay); _i++) {
             basic.pause(delay)
             smile.rotate(1)
             smile.show()
         }
-        return smile
     }
 
     /**
@@ -466,10 +478,10 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockSetVariable=smile
     //% blockId="gigglebot_line_graph" block="display graph of %graph_value| with a max of %graph_max"
-    export function show_line_graph(graph_value: number, graph_max: number): neopixel.Strip {
+    export function show_line_graph(graph_value: number, graph_max: number) {
         smile.showBarGraph(graph_value, graph_max)
-        return smile
     }
+
 
     /////////// LINE FOLLOWER BLOCKS
     /**
