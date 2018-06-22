@@ -402,7 +402,7 @@ namespace gigglebot {
     /**
      * Let's you use the blocks in the neopixel category for better control over the eyes.
      */
-    //% blockId="gigglebot_eye" block="%which|eye"
+    //% blockId="gigglebot_eye" block="%which"
     //% subcategory=Lights
     export function which_eye(which: WhichEye): neopixel.Strip {
 
