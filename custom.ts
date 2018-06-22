@@ -166,6 +166,7 @@ namespace gigglebot {
     let trim_right = 0
     let motor_power_left = (default_motor_power - trim_left)
     let motor_power_right = (default_motor_power - trim_right)
+
     let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
     let eyes = strip.range(0, 2)
     let smile = strip.range(2, 7)
@@ -396,18 +397,20 @@ namespace gigglebot {
     //% blockId="gigglebot_open_eyes" block="%eyeaction| %which"
     //% subcategory=Lights
     //% blockSetVariable=eyes
-    export function open_close_eyes(eyeaction: EyeAction, which: WhichEye) {
+    export function open_close_eyes(eyeaction: EyeAction, which: WhichEye): neopixel.Strip {
         if (eyeaction == EyeAction.Close) {
             eyes.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
         }
         eyes.show()
+        return eyes
     }
 
     //% subcategory=Lights
     //% blockId="gigglebot_smile" block="display a  %smile_color|smile"
     //% blockSetVariable=smile
-    export function show_smile(smile_color: NeoPixelColors) {
+    export function show_smile(smile_color: NeoPixelColors): neopixel.Strip {
         smile.showColor(neopixel.colors(smile_color))
+        return smile
     }
 
     /**
@@ -416,8 +419,9 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_smile" block="display a rainbow smile"
     //% blockSetVariable=smile
-    export function smile_rainbow() {
+    export function smile_rainbow(): neopixel.Strip {
         smile.showRainbow(1, 315)
+        return smile
     }
 
     /**
@@ -427,13 +431,14 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_cycle" block="cycle rainbow %nbcycles| times "
     //% blockSetVariable=smile
-    export function smile_cycle_rainbow(nbcycles: number = 3): void {
+    export function smile_cycle_rainbow(nbcycles: number = 3): neopixel.Strip {
         smile.showRainbow(1, 315)
         for (let _i = 0; _i < (nbcycles * 7); _i++) {
             basic.pause(100)
             smile.rotate(1)
             smile.show()
         }
+        return smile
     }
 
     /**
@@ -444,13 +449,14 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockSetVariable=smile
     //% blockId="gigglebot_rainbow_cycle_time" block="cycle rainbow every %delay| ms for %cycle_length| ms "
-    export function smile_cycle_rainbow_time(delay: number = 100, cycle_length: number = 3000) {
+    export function smile_cycle_rainbow_time(delay: number = 100, cycle_length: number = 3000): neopixel.Strip {
         smile.showRainbow(1, 315)
         for (let _i = 0; _i < (cycle_length / delay); _i++) {
             basic.pause(delay)
             smile.rotate(1)
             smile.show()
         }
+        return smile
     }
 
     /**
@@ -460,8 +466,9 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockSetVariable=smile
     //% blockId="gigglebot_line_graph" block="display graph of %graph_value| with a max of %graph_max"
-    export function show_line_graph(graph_value: number, graph_max: number) {
+    export function show_line_graph(graph_value: number, graph_max: number): neopixel.Strip {
         smile.showBarGraph(graph_value, graph_max)
+        return smile
     }
 
     /////////// LINE FOLLOWER BLOCKS
