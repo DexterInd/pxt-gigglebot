@@ -348,14 +348,12 @@ namespace gigglebot {
     //% blockId="gigglebot_remote_control"
     //% block="external remote control, group %radio_block"
     export function remote_control(radio_block: number): void {
-        let power_left = 50
-        let power_right = 50
+        let power_left = motor_power_left
+        let power_right = motor_power_right
         radio.setGroup(radio_block)
-        power_left = ((50 * input.acceleration(Dimension.Y)) / 1024) + ((50 * input.acceleration(Dimension.X)) / 1024)
-        power_right = ((50 * input.acceleration(Dimension.Y)) / 1024) - ((50 * input.acceleration(Dimension.X)) / 1024)
-        radio.sendValue("left", power_left)
-        basic.pause(10)
-        radio.sendValue("right", power_right)
+        power_left = ((motor_power_left * -1 * input.acceleration(Dimension.Y)) / 1024) + ((50 * input.acceleration(Dimension.X)) / 1024)
+        power_right = ((motor_power_right * -1 * input.acceleration(Dimension.Y)) / 1024) - ((50 * input.acceleration(Dimension.X)) / 1024)
+        radio.sendValue(power_left+"", power_right)
     }
 
     const packet = new radio.Packet();
@@ -388,12 +386,8 @@ namespace gigglebot {
     //% blockId="gigglebot_remote_control_action"
     //% block="do remote control action"
     export function remote_control_action(): void {
-        if (packet.receivedString == "left") {
-            motor_power_left = packet.receivedNumber - trim_left
-        }
-        if (packet.receivedString == "right") {
-            motor_power_right = packet.receivedNumber - trim_right
-        }
+        motor_power_left = parseInt(packet.receivedString) - trim_left
+        motor_power_right = packet.receivedNumber - trim_right
         set_motor_powers(motor_power_left, motor_power_right)
     }
 
