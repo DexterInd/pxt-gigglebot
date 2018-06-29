@@ -351,8 +351,34 @@ namespace gigglebot {
         let power_left = motor_power_left
         let power_right = motor_power_right
         radio.setGroup(radio_block)
-        power_left = ((motor_power_left * -1 * input.acceleration(Dimension.Y)) / 1024) + ((50 * input.acceleration(Dimension.X)) / 1024)
-        power_right = ((motor_power_right * -1 * input.acceleration(Dimension.Y)) / 1024) - ((50 * input.acceleration(Dimension.X)) / 1024)
+        power_left = ((motor_power_left * -1 * input.acceleration(Dimension.Y)) / 512) + ((50 * input.acceleration(Dimension.X)) / 512)
+        power_right = ((motor_power_right * -1 * input.acceleration(Dimension.Y)) / 512) - ((50 * input.acceleration(Dimension.X)) / 512)
+        // limit those values from -100 to 100
+        power_left = Math.min(Math.max(power_left, 100), -100)
+        power_right = Math.min(Math.max(power_right, 100), -100)
+        if (Math.abs(power_left) < 2 && Math.abs(power_right) < 2) {
+            basic.showIcon(IconNames.No)
+        } else if (power_left > 0 && power_right > 0) {
+            if (Math.abs(power_left - power_right) < 10) {
+                basic.showArrow(ArrowNames.North)
+            } else if (power_left > power_right) {
+                basic.showArrow(ArrowNames.NorthEast)
+            } else {
+                basic.showArrow(ArrowNames.NorthWest)
+            }
+        } else if (power_left < 0 && power_right < 0) {
+            if (Math.abs(power_left - power_right) < 10) {
+                basic.showArrow(ArrowNames.South)
+            } else if (power_left > power_right) {
+                basic.showArrow(ArrowNames.SouthWest)
+            } else {
+                basic.showArrow(ArrowNames.SouthEast)
+            }
+        } else if (power_left - power_right < 0) {
+            basic.showArrow(ArrowNames.West)
+        } else if (power_left - power_right > 0) {
+            basic.showArrow(ArrowNames.East)
+        }
         radio.sendValue(power_left+"", power_right)
     }
 
@@ -386,8 +412,8 @@ namespace gigglebot {
     //% blockId="gigglebot_remote_control_action"
     //% block="do remote control action"
     export function remote_control_action(): void {
-        motor_power_left = parseInt(packet.receivedString) - trim_left
-        motor_power_right = packet.receivedNumber - trim_right
+        motor_power_left = parseInt(packet.receivedString)
+        motor_power_right = packet.receivedNumber
         set_motor_powers(motor_power_left, motor_power_right)
     }
 
