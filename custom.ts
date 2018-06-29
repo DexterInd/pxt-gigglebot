@@ -354,6 +354,8 @@ namespace gigglebot {
         power_left = ((motor_power_left * -1 * input.acceleration(Dimension.Y)) / 1024) + ((50 * input.acceleration(Dimension.X)) / 1024)
         power_right = ((motor_power_right * -1 * input.acceleration(Dimension.Y)) / 1024) - ((50 * input.acceleration(Dimension.X)) / 1024)
         radio.sendValue(power_left+"", power_right)
+        // basic.pause(10)
+        // radio.sendValue("right", power_right)
     }
 
     const packet = new radio.Packet();
