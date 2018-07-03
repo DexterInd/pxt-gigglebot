@@ -556,7 +556,9 @@ namespace gigglebot {
     }
 
     /**
-    * Reads left or right light sensor.
+    * Reads left or right light sensor. 
+    * The light sensors are placed in front of each eye neopixel, they're tiny! 
+    * The range is between 0 and 1023, although the extremes are rarely seen.
     */
     //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
     //% subcategory=Sensors
