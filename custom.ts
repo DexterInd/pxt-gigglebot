@@ -426,7 +426,7 @@ namespace gigglebot {
     //////////  NEOPIXEL BLOCKS
 
     /**
-     * Let's you use the blocks in the neopixel category for better control over the eyes.
+     * Lets you use the blocks in the neopixel category for better control over the eyes.
      */
     //% blockId="gigglebot_eye" block="%which"
     //% subcategory=Lights
@@ -441,7 +441,7 @@ namespace gigglebot {
     }
 
     /**
-     * Let's you use the blocks in the neopixel category for better control over the smile/rainbow.
+     * Lets you use the blocks in the neopixel category for better control over the smile/rainbow.
      */
     //% subcategory=Lights
     //% blockId="gigglebot_get_smile" block="smile"
@@ -568,30 +568,23 @@ namespace gigglebot {
     //% group=LightSensor
 
     export function follow_light() {
-        // take ambient reading
-        let ambient_lights = get_raw_light_sensors();
-        let current_lights = ambient_lights;
         let diff = 0
-        while ((current_lights[0] > ambient_lights[0]) || (current_lights[1] > ambient_lights[1])) {
-            current_lights = get_raw_light_sensors()
-            diff = (current_lights[0] - current_lights[1]) / 10;
-            serial.writeLine("" + current_lights[0] + ". " + current_lights[0] + " diff:" + diff)
-            if (current_lights[0] > current_lights[1]) {
-                // it's brighter to the right
-                set_motor_powers(motor_power_left, motor_power_right - diff)
-                serial.writeLine("Turn Right")
-            }
-            else {
-                // it's brighter to the left
-                serial.writeLine("Turn Left")
-                set_motor_powers(motor_power_left + diff, motor_power_right)
-            }
+        let current_lights = get_raw_light_sensors()
+        diff = Math.abs((current_lights[0] - current_lights[1])) / 10;
+        if (current_lights[0] > current_lights[1]) {
+            // it's brighter to the right
+            set_motor_powers(motor_power_left, motor_power_right - diff)
         }
-        set_motor_power(WhichMotor.Both, 0)
+        else {
+            // it's brighter to the left
+            set_motor_powers(motor_power_left - diff, motor_power_right)
+        }
     }
 
     /**
-    * Reads left or right light sensor.
+    * Reads left or right light sensor. 
+    * The light sensors are placed in front of each eye neopixel, they're tiny! 
+    * The range is 0 through 1023, although in reality rarely above ~950.
     */
     //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
     //% subcategory=Sensors
@@ -803,7 +796,7 @@ namespace gigglebot {
             light_sensor[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
             light_sensor[_i] = 1023 - light_sensor[_i]
         }
-        serial.writeNumbers(light_sensor)
+        // serial.writeNumbers(light_sensor)
         return light_sensor
     }
 }
