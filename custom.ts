@@ -171,6 +171,8 @@ namespace gigglebot {
     let eyes = strip.range(0, 2)
     let left_eye_neopixel = strip.range(1, 1)
     let right_eye_neopixel = strip.range(0, 1)
+    let eye_color_left = neopixel.colors(NeoPixelColors.Blue)
+    let eye_color_right = neopixel.colors(NeoPixelColors.Blue)
     let smile = strip.range(2, 7)
     eyes.setBrightness(10)
     left_eye_neopixel.setBrightness(10)
@@ -180,8 +182,12 @@ namespace gigglebot {
         strip.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
     }
     strip.show()
-    left_eye_neopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
-    right_eye_neopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+    if (get_voltage() < 3400) {
+        eye_color_left = neopixel.colors(NeoPixelColors.Red)
+        eye_color_right = neopixel.colors(NeoPixelColors.Red)
+    }
+    left_eye_neopixel.setPixelColor(0, eye_color_left)
+    right_eye_neopixel.setPixelColor(0, eye_color_right)
     eyes.show()
 
 
