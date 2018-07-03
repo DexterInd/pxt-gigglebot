@@ -171,6 +171,8 @@ namespace gigglebot {
     let eyes = strip.range(0, 2)
     let left_eye_neopixel = strip.range(1, 1)
     let right_eye_neopixel = strip.range(0, 1)
+    let eye_color_left = neopixel.colors(NeoPixelColors.Blue)
+    let eye_color_right = neopixel.colors(NeoPixelColors.Blue)
     let smile = strip.range(2, 7)
     eyes.setBrightness(10)
     left_eye_neopixel.setBrightness(10)
@@ -180,8 +182,12 @@ namespace gigglebot {
         strip.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
     }
     strip.show()
-    left_eye_neopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
-    right_eye_neopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+    if (get_voltage() < 3400) {
+        eye_color_left = neopixel.colors(NeoPixelColors.Red)
+        eye_color_right = neopixel.colors(NeoPixelColors.Red)
+    }
+    left_eye_neopixel.setPixelColor(0, eye_color_left)
+    right_eye_neopixel.setPixelColor(0, eye_color_right)
     eyes.show()
 
 
@@ -348,14 +354,38 @@ namespace gigglebot {
     //% blockId="gigglebot_remote_control"
     //% block="external remote control, group %radio_block"
     export function remote_control(radio_block: number): void {
-        let power_left = 50
-        let power_right = 50
+        let power_left = motor_power_left
+        let power_right = motor_power_right
         radio.setGroup(radio_block)
-        power_left = ((50 * input.acceleration(Dimension.Y)) / 1024) + ((50 * input.acceleration(Dimension.X)) / 1024)
-        power_right = ((50 * input.acceleration(Dimension.Y)) / 1024) - ((50 * input.acceleration(Dimension.X)) / 1024)
-        radio.sendValue("left", power_left)
-        basic.pause(10)
-        radio.sendValue("right", power_right)
+        power_left = ((motor_power_left * -1 * input.acceleration(Dimension.Y)) / 512) + ((50 * input.acceleration(Dimension.X)) / 512)
+        power_right = ((motor_power_right * -1 * input.acceleration(Dimension.Y)) / 512) - ((50 * input.acceleration(Dimension.X)) / 512)
+        // limit those values from -100 to 100
+        power_left = Math.min(Math.max(power_left, 100), -100)
+        power_right = Math.min(Math.max(power_right, 100), -100)
+        if (Math.abs(power_left) < 2 && Math.abs(power_right) < 2) {
+            basic.showIcon(IconNames.No)
+        } else if (power_left > 0 && power_right > 0) {
+            if (Math.abs(power_left - power_right) < 10) {
+                basic.showArrow(ArrowNames.North)
+            } else if (power_left > power_right) {
+                basic.showArrow(ArrowNames.NorthEast)
+            } else {
+                basic.showArrow(ArrowNames.NorthWest)
+            }
+        } else if (power_left < 0 && power_right < 0) {
+            if (Math.abs(power_left - power_right) < 10) {
+                basic.showArrow(ArrowNames.South)
+            } else if (power_left > power_right) {
+                basic.showArrow(ArrowNames.SouthWest)
+            } else {
+                basic.showArrow(ArrowNames.SouthEast)
+            }
+        } else if (power_left - power_right < 0) {
+            basic.showArrow(ArrowNames.West)
+        } else if (power_left - power_right > 0) {
+            basic.showArrow(ArrowNames.East)
+        }
+        radio.sendValue(power_left+"", power_right)
     }
 
     const packet = new radio.Packet();
@@ -388,12 +418,8 @@ namespace gigglebot {
     //% blockId="gigglebot_remote_control_action"
     //% block="do remote control action"
     export function remote_control_action(): void {
-        if (packet.receivedString == "left") {
-            motor_power_left = packet.receivedNumber - trim_left
-        }
-        if (packet.receivedString == "right") {
-            motor_power_right = packet.receivedNumber - trim_right
-        }
+        motor_power_left = parseInt(packet.receivedString)
+        motor_power_right = packet.receivedNumber
         set_motor_powers(motor_power_left, motor_power_right)
     }
 
