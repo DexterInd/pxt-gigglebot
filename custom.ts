@@ -400,7 +400,7 @@ namespace gigglebot {
     //////////  NEOPIXEL BLOCKS
 
     /**
-     * Let's you use the blocks in the neopixel category for better control over the eyes.
+     * Lets you use the blocks in the neopixel category for better control over the eyes.
      */
     //% blockId="gigglebot_eye" block="%which"
     //% subcategory=Lights
@@ -415,7 +415,7 @@ namespace gigglebot {
     }
 
     /**
-     * Let's you use the blocks in the neopixel category for better control over the smile/rainbow.
+     * Lets you use the blocks in the neopixel category for better control over the smile/rainbow.
      */
     //% subcategory=Lights
     //% blockId="gigglebot_get_smile" block="smile"
@@ -558,7 +558,7 @@ namespace gigglebot {
     /**
     * Reads left or right light sensor. 
     * The light sensors are placed in front of each eye neopixel, they're tiny! 
-    * The range is between 0 and 1023, although the extremes are rarely seen.
+    * The range is 0 through 1023, although in reality rarely above ~950.
     */
     //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
     //% subcategory=Sensors
