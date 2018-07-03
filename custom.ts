@@ -152,7 +152,7 @@ namespace gigglebot {
     let MOTOR_RIGHT = 0x02
     let ADDR = 0x04
 
-    let init_done = false;
+    let distance_sensor_init_done = false;
 
     let left_motor_dps = WhichSpeed.Normal
     let right_motor_dps = WhichSpeed.Normal
@@ -190,14 +190,9 @@ namespace gigglebot {
     right_eye_neopixel.setPixelColor(0, eye_color_right)
     eyes.show()
 
-
-    function init() {
-        if (init_done == false) {
-        }
-        init_done = true;
-        // serial.writeLine("INIT")
-    }
-
+/**
+ * Follows a line that is thin enough to fall between the two sensors.
+ */
     function follow_thin_line() {
         let all_black = false
         gigglebot.drive_straight(WhichDriveDirection.Forward)
@@ -226,6 +221,9 @@ namespace gigglebot {
         }
     }
 
+/**
+ * Follows a line that is thicker than the space between the two sensors
+ */
     function follow_thick_line() {
         let all_white = false
         gigglebot.drive_straight(WhichDriveDirection.Forward)
@@ -253,8 +251,24 @@ namespace gigglebot {
             strip.show()
         }
     }
+    /**
+    * Configures the Distance Sensor.
+    * must be called before doing any distance sensor readings.
+    */
+    function distanceSensorConfigure() {
+        distanceSensor.init()
+        // set to long range (about 2.3 meters)
+        // set final range signal rate limit to 0.1 MCPS (million counts per second)
+        distanceSensor.setSignalRateLimitRaw(12) // 0.1 * (1 << 7) = 12.8
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodPreRange(), 18)
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodFinalRange(), 14)
+        distanceSensor.startContinuous(0)
+        distance_sensor_init_done = true
+    }
 
+    //////////////////
     ////////// BLOCKS
+    //////////////////
 
     /**
      * Will let gigglebot move forward or backward for a number of milliseconds.
@@ -322,7 +336,6 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_stop" block="stop"
     export function stop() {
-        init()
         set_motor_power(WhichMotor.Both, 0)
     }
 
@@ -596,29 +609,15 @@ namespace gigglebot {
     }
 
     /**
-    * Configures the Distance Sensor.
-    * must be called before doing any distance sensor readings.
-    */
-    //% blockId="DSconfigure" block="configure distance sensor"
-    //% subcategory=Sensors
-    //% group=LightSensor
-    export function DSconfigure() {
-        distanceSensor.init()
-        // set to long range (about 2.3 meters)
-        // set final range signal rate limit to 0.1 MCPS (million counts per second)
-        distanceSensor.setSignalRateLimitRaw(12) // 0.1 * (1 << 7) = 12.8
-        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodPreRange(), 18)
-        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodFinalRange(), 14)
-        distanceSensor.startContinuous(0)
-    }
-
-    /**
      * Get a reading of how far an obstacle is from the distanse sensor.
      */
-    //% blockId="DSreadRangeContinuous" block="distance to obstacle (mm)"
+    //% blockId="distanceSensorReadRangeContinuous" block="distance to obstacle (mm)"
     //% subcategory=Sensors
     //% group=LightSensor
-    export function DSreadRangeContinuous(): number {
+    export function distanceSensorReadRangeContinuous(): number {
+        if (distance_sensor_init_done == false){
+            distanceSensorConfigure()
+        }
         return distanceSensor.readRangeContinuousMillimeters()
     }
 
@@ -627,9 +626,12 @@ namespace gigglebot {
      */
     //% subcategory=Sensors
     //% group=LightSensor
-    //% blockId="DStestForObstacle" block="obstacle is %inequality| %dist| mm"
+    //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality| %dist| mm"
     //% blockGap=32
-    export function DStestForObstacle(inequality: Inequality, dist: number): boolean {
+    export function distanceSensorTestForObstacle(inequality: Inequality, dist: number): boolean {
+        if (distance_sensor_init_done == false) {
+            distanceSensorConfigure()
+        }
         if (inequality == Inequality.Closer) {
             if (distanceSensor.readRangeContinuousMillimeters() < dist) {
                 return true
@@ -649,7 +651,13 @@ namespace gigglebot {
         return false
     }
 
-    export function DSreadRangeSingle(): number {
+/**
+ * Distance Sensor: takes a single reading.
+ */
+    export function distanceSensorReadRangeSingle(): number {
+        if (distance_sensor_init_done == false) {
+            distanceSensorConfigure()
+        }
         return distanceSensor.readRangeSingleMillimeters()
     }
 
@@ -679,8 +687,6 @@ namespace gigglebot {
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
     //% advanced=true
     export function set_motor_trim(dir: WhichTurnDirection, trim_value: number) {
-        init()
-
         if (dir == WhichTurnDirection.Left) {
             trim_left = trim_value
             motor_power_left = default_motor_power - trim_left
@@ -694,7 +700,6 @@ namespace gigglebot {
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
     export function set_motor_power(motor: WhichMotor, power: number) {
-        init()
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.SET_MOTOR_POWER)
         buf.setNumber(NumberFormat.UInt8BE, 2, power)
@@ -716,7 +721,6 @@ namespace gigglebot {
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
     export function set_motor_powers(left_power: number, right_power: number) {
-        init()
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.SET_MOTOR_POWERS)
         buf.setNumber(NumberFormat.UInt8BE, 1, right_power)
@@ -741,7 +745,6 @@ namespace gigglebot {
          * TODO: describe your function here
          * @param value describe value here, eg: 5
          */
-        init()
         let buf = pins.createBuffer(1)
         buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_FIRMWARE_VERSION)
         pins.i2cWriteBuffer(ADDR, buf)
@@ -756,7 +759,6 @@ namespace gigglebot {
          * TODO: describe your function here
          * @param value describe value here, eg: 5
          */
-        init()
         let buf = pins.createBuffer(1)
         buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_VOLTAGE_BATTERY)
         pins.i2cWriteBuffer(ADDR, buf)
