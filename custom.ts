@@ -152,7 +152,7 @@ namespace gigglebot {
     let MOTOR_RIGHT = 0x02
     let ADDR = 0x04
 
-    let distance_sensor_init_done = false;
+    let distanceSensorInitDone = false;
 
     let left_motor_dps = WhichSpeed.Normal
     let right_motor_dps = WhichSpeed.Normal
@@ -263,7 +263,7 @@ namespace gigglebot {
         distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodPreRange(), 18)
         distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodFinalRange(), 14)
         distanceSensor.startContinuous(0)
-        distance_sensor_init_done = true
+        distanceSensorInitDone = true
     }
 
     //////////////////
@@ -615,7 +615,7 @@ namespace gigglebot {
     //% subcategory=Sensors
     //% group=LightSensor
     export function distanceSensorReadRangeContinuous(): number {
-        if (distance_sensor_init_done == false){
+        if (distanceSensorInitDone == false){
             distanceSensorConfigure()
         }
         return distanceSensor.readRangeContinuousMillimeters()
@@ -629,7 +629,7 @@ namespace gigglebot {
     //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality| %dist| mm"
     //% blockGap=32
     export function distanceSensorTestForObstacle(inequality: Inequality, dist: number): boolean {
-        if (distance_sensor_init_done == false) {
+        if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
         }
         if (inequality == Inequality.Closer) {
@@ -655,7 +655,7 @@ namespace gigglebot {
  * Distance Sensor: takes a single reading.
  */
     export function distanceSensorReadRangeSingle(): number {
-        if (distance_sensor_init_done == false) {
+        if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
         }
         return distanceSensor.readRangeSingleMillimeters()
