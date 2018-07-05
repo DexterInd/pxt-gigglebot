@@ -142,7 +142,7 @@ namespace gigglebot {
     let MOTOR_RIGHT = 0x02
     let ADDR = 0x04
 
-    let init_done = false;
+    let distanceSensorInitDone = false;
 
     let motorDegreesPerSecondLeft = gigglebotWhichSpeed.Normal
     let motorDegreesPerSecondRight = gigglebotWhichSpeed.Normal
@@ -180,14 +180,6 @@ namespace gigglebot {
     eyeNeopixelRight.setPixelColor(0, eyeColorRight)
     eyeNeopixelBoth.show()
 
-
-    function init() {
-        if (init_done == false) {
-        }
-        init_done = true;
-        // serial.writeLine("INIT")
-    }
-
     function followThinLine() {
         let all_black = false
         gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
@@ -216,6 +208,9 @@ namespace gigglebot {
         }
     }
 
+/**
+ * Follows a line that is thicker than the space between the two sensors
+ */
     function followThickLine() {
         let all_white = false
         gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
@@ -243,8 +238,24 @@ namespace gigglebot {
             stripNeopixel.show()
         }
     }
+    /**
+    * Configures the Distance Sensor.
+    * must be called before doing any distance sensor readings.
+    */
+    function distanceSensorConfigure() {
+        distanceSensor.init()
+        // set to long range (about 2.3 meters)
+        // set final range signal rate limit to 0.1 MCPS (million counts per second)
+        distanceSensor.setSignalRateLimitRaw(12) // 0.1 * (1 << 7) = 12.8
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodPreRange(), 18)
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodFinalRange(), 14)
+        distanceSensor.startContinuous(0)
+        distanceSensorInitDone = true
+    }
 
+    //////////////////
     ////////// BLOCKS
+    //////////////////
 
     /**
      * Will let gigglebot move forward or backward for a number of milliseconds.
@@ -259,7 +270,7 @@ namespace gigglebot {
         if (dir == gigglebotWhichDriveDirection.Forward) {
             dir_factor = 1
         }
-        motorPowersSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
+        motorPowerSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
         basic.pause(delay)
         motorPowerSet(gigglebotWhichMotor.Both, 0)
     }
@@ -270,10 +281,10 @@ namespace gigglebot {
     //% blockId="gigglebot_turn_X_millisec" block="turn %turn_dir|for %delay|ms"
     export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
-            motorPowersSetBoth(0, motorPowerRight)
+            motorPowerSetBoth(0, motorPowerRight)
         }
         else {
-            motorPowersSetBoth(motorPowerLeft, 0)
+            motorPowerSetBoth(motorPowerLeft, 0)
         }
         basic.pause(delay)
         motorPowerSet(gigglebotWhichMotor.Both, 0)
@@ -291,7 +302,7 @@ namespace gigglebot {
         if (dir == gigglebotWhichDriveDirection.Forward) {
             dir_factor = 1
         }
-        motorPowersSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
+        motorPowerSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
     }
 
     /**
@@ -300,10 +311,10 @@ namespace gigglebot {
     //% blockId="gigglebot_turn" block="turn %turn_dir"
     export function turn(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
-            motorPowersSetBoth(0, motorPowerRight)
+            motorPowerSetBoth(0, motorPowerRight)
         }
         else {
-            motorPowersSetBoth(motorPowerLeft, 0)
+            motorPowerSetBoth(motorPowerLeft, 0)
         }
     }
 
@@ -312,7 +323,6 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_stop" block="stop"
     export function stop() {
-        init()
         motorPowerSet(gigglebotWhichMotor.Both, 0)
     }
 
@@ -331,7 +341,7 @@ namespace gigglebot {
         if (motor != gigglebotWhichMotor.Right) {
             motorPowerLeft = speed - trimLeft;
         }
-        motorPowersSetBoth(motorPowerLeft, motorPowerRight)
+        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
     }
 
 
@@ -410,7 +420,7 @@ namespace gigglebot {
     export function remoteControlAction(): void {
         motorPowerLeft = parseInt(packet.receivedString)
         motorPowerRight = packet.receivedNumber
-        motorPowersSetBoth(motorPowerLeft, motorPowerRight)
+        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
     }
 
     //////////  NEOPIXEL BLOCKS
@@ -563,11 +573,11 @@ namespace gigglebot {
         diff = Math.abs((current_lights[0] - current_lights[1])) / 10;
         if (current_lights[0] > current_lights[1]) {
             // it's brighter to the right
-            motorPowersSetBoth(motorPowerLeft, motorPowerRight - diff)
+            motorPowerSetBoth(motorPowerLeft, motorPowerRight - diff)
         }
         else {
             // it's brighter to the left
-            motorPowersSetBoth(motorPowerLeft - diff, motorPowerRight)
+            motorPowerSetBoth(motorPowerLeft - diff, motorPowerRight)
         }
     }
 
@@ -605,10 +615,13 @@ namespace gigglebot {
     /**
      * Get a reading of how far an obstacle is from the distanse sensor.
      */
-    //% blockId="DSreadRangeContinuous" block="distance to obstacle (mm)"
+    //% blockId="distanceSensorReadRangeContinuous" block="distance to obstacle (mm)"
     //% subcategory=Sensors
     //% group=LightSensor
     export function distanceSensorReadRangeContinuous(): number {
+        if (distanceSensorInitDone == false){
+            distanceSensorConfigure()
+        }
         return distanceSensor.readRangeContinuousMillimeters()
     }
 
@@ -617,10 +630,13 @@ namespace gigglebot {
      */
     //% subcategory=Sensors
     //% group=LightSensor
-    //% blockId="DStestForObstacle" block="obstacle is %inequality| %dist| mm"
+    //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality| %dist| mm"
     //% blockGap=32
     export function distanceSensorTestForObstacle(inequality: gigglebotInequality, dist: number): boolean {
-        if (inequality == gigglebotInequality.Closer) {
+        if (distanceSensorInitDone == false) {
+            distanceSensorConfigure()
+        }
+        if (inequality == Inequality.Closer) {
             if (distanceSensor.readRangeContinuousMillimeters() < dist) {
                 return true
             }
@@ -639,7 +655,13 @@ namespace gigglebot {
         return false
     }
 
+/**
+ * Distance Sensor: takes a single reading.
+ */
     export function distanceSensorReadRangeSingle(): number {
+        if (distanceSensorInitDone == false) {
+            distanceSensorConfigure()
+        }
         return distanceSensor.readRangeSingleMillimeters()
     }
 
@@ -705,7 +727,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
-    export function motorPowersSetBoth(left_power: number, right_power: number) {
+    export function motorPowerSetBoth(left_power: number, right_power: number) {
         init()
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
@@ -731,7 +753,6 @@ namespace gigglebot {
          * TODO: describe your function here
          * @param value describe value here, eg: 5
          */
-        init()
         let buf = pins.createBuffer(1)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_FIRMWARE_VERSION)
         pins.i2cWriteBuffer(ADDR, buf)
@@ -746,7 +767,6 @@ namespace gigglebot {
          * TODO: describe your function here
          * @param value describe value here, eg: 5
          */
-        init()
         let buf = pins.createBuffer(1)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_VOLTAGE_BATTERY)
         pins.i2cWriteBuffer(ADDR, buf)
