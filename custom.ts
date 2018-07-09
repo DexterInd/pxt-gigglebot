@@ -4,13 +4,13 @@
  * Read more at https://makecode.microbit.org/blocks/custom
  */
 
-enum WhichUniqueMotor {
+enum gigglebotWhichUniqueMotor {
     //% block="right motor"
     Right,
     //% block="left motor"
     Left
 }
-enum WhichMotor {
+enum gigglebotWhichMotor {
     //% block="both motors"
     Both,
     //% block="right motor"
@@ -20,28 +20,28 @@ enum WhichMotor {
 
 }
 
-enum WhichDriveDirection {
+enum gigglebotWhichDriveDirection {
     //% block="forward"
     Forward,
     //% block="backward"
     Backward
 }
 
-enum WhichTurnDirection {
+enum gigglebotWhichTurnDirection {
     //% block="right"
     Right,
     //% block="left"
     Left
 }
 
-enum WhichUnitSystem {
+enum gigglebotWhichUnitSystem {
     //% block="mm"
     mm,
     //% block="inches"
     inches
 }
 
-enum WhichSpeed {
+enum gigglebotWhichSpeed {
     //% block="slowest"
     Slowest = 25,
     //% block="slower"
@@ -54,7 +54,7 @@ enum WhichSpeed {
     Fastest = 90
 }
 
-enum I2C_Commands {
+enum gigglebotI2CCommands {
     GET_FIRMWARE_VERSION = 1,
     GET_MANUFACTURER,
     GET_BOARD,
@@ -66,21 +66,22 @@ enum I2C_Commands {
     SET_MOTOR_POWER,
     SET_MOTOR_POWERS
 }
-enum LineType {
+
+enum gigglebotLineType {
     //% block="thin"
     Thin,
     //% block="thick"
     Thick
 }
 
-enum LineColor {
+enum gigglebotLineColor {
     //% block="black"
     Black,
     //% block="white"
     White
 }
 
-enum WhichEye {
+enum gigglebotWhichEye {
     //% block="both eyes"
     Both,
     //% block="left eye"
@@ -89,14 +90,14 @@ enum WhichEye {
     Right
 }
 
-enum EyeAction {
+enum gigglebotEyeAction {
     //% block="open"
     Open,
     //% block="close"
     Close
 }
 
-enum GigglePixels {
+enum gigglebotGigglePixels {
     Right,
     Left,
     SmileOne,
@@ -108,7 +109,7 @@ enum GigglePixels {
     SmileSeven
 }
 
-enum ServoAction {
+enum gigglebotServoAction {
     //% block="right"
     Right,
     //% block="left"
@@ -119,7 +120,7 @@ enum ServoAction {
     Mirror
 }
 
-enum Inequality {
+enum gigglebotInequality {
     //% block="closer than"
     Closer,
     //% block="farther than"
@@ -136,17 +137,6 @@ namespace gigglebot {
     /**
      */
 
-    let PIMULT = 31416
-    let PIDIV = 10000
-    let WHEEL_BASE_WIDTH = 108
-    let WHEEL_DIAMETER10 = 665
-    let WHEEL_BASE_CIRCUMFERENCE = 339
-    let WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER10 * PIMULT / (10 * PIDIV)
-
-    let MOTOR_GEAR_RATIO = 120
-    let ENCODER_TICKS_PER_ROTATION = 6
-    let MOTOR_TICKS_PER_DEGREE = (MOTOR_GEAR_RATIO * ENCODER_TICKS_PER_ROTATION) / 360
-
     let LINE_FOLLOWER_THRESHOLD = 100
     let MOTOR_LEFT = 0x01
     let MOTOR_RIGHT = 0x02
@@ -154,101 +144,98 @@ namespace gigglebot {
 
     let distanceSensorInitDone = false;
 
-    let left_motor_dps = WhichSpeed.Normal
-    let right_motor_dps = WhichSpeed.Normal
-    let left_dir = WhichDriveDirection.Forward
-    let right_dir = WhichDriveDirection.Forward
-    let line_sensor = [0, 0]
-    let light_sensor = [0, 0]
+    let motorDegreesPerSecondLeft = gigglebotWhichSpeed.Normal
+    let motorDegreesPerSecondRight = gigglebotWhichSpeed.Normal
+    let directionLeft = gigglebotWhichDriveDirection.Forward
+    let DirectionLeft = gigglebotWhichDriveDirection.Forward
+    let lineSensors = [0, 0]
+    let lightSensors = [0, 0]
 
-    let default_motor_power = 50;
-    let trim_left = 0
-    let trim_right = 0
-    let motor_power_left = (default_motor_power - trim_left)
-    let motor_power_right = (default_motor_power - trim_right)
+    let defaultMotorPower = 50;
+    let trimLeft = 0
+    let trimRight = 0
+    let motorPowerLeft = (defaultMotorPower - trimLeft)
+    let motorPowerRight = (defaultMotorPower - trimRight)
 
-    let strip = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
-    let eyes = strip.range(0, 2)
-    let left_eye_neopixel = strip.range(1, 1)
-    let right_eye_neopixel = strip.range(0, 1)
-    let eye_color_left = neopixel.colors(NeoPixelColors.Blue)
-    let eye_color_right = neopixel.colors(NeoPixelColors.Blue)
-    let smile = strip.range(2, 7)
-    eyes.setBrightness(10)
-    left_eye_neopixel.setBrightness(10)
-    right_eye_neopixel.setBrightness(10)
-    smile.setBrightness(40)
-    for (let _i = 0; _i < GigglePixels.SmileSeven; _i++) {
-        strip.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
+    let stripNeopixel = neopixel.create(DigitalPin.P8, 9, NeoPixelMode.RGB)
+    let eyeNeopixelBoth = stripNeopixel.range(0, 2)
+    let eyeNeopixelLeft = stripNeopixel.range(1, 1)
+    let eyeNeopixelRight = stripNeopixel.range(0, 1)
+    let eyeColorLeft = neopixel.colors(NeoPixelColors.Blue)
+    let eyeColorRight = neopixel.colors(NeoPixelColors.Blue)
+    let smileNeopixel = stripNeopixel.range(2, 7)
+    eyeNeopixelBoth.setBrightness(10)
+    eyeNeopixelLeft.setBrightness(10)
+    eyeNeopixelRight.setBrightness(10)
+    smileNeopixel.setBrightness(40)
+    for (let _i = 0; _i < gigglebotGigglePixels.SmileSeven; _i++) {
+        stripNeopixel.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
     }
-    strip.show()
-    if (get_voltage() < 3400) {
-        eye_color_left = neopixel.colors(NeoPixelColors.Red)
-        eye_color_right = neopixel.colors(NeoPixelColors.Red)
+    stripNeopixel.show()
+    if (voltageRead() < 3400) {
+        eyeColorLeft = neopixel.colors(NeoPixelColors.Red)
+        eyeColorRight = neopixel.colors(NeoPixelColors.Red)
     }
-    left_eye_neopixel.setPixelColor(0, eye_color_left)
-    right_eye_neopixel.setPixelColor(0, eye_color_right)
-    eyes.show()
+    eyeNeopixelLeft.setPixelColor(0, eyeColorLeft)
+    eyeNeopixelRight.setPixelColor(0, eyeColorRight)
+    eyeNeopixelBoth.show()
 
-/**
- * Follows a line that is thin enough to fall between the two sensors.
- */
-    function follow_thin_line() {
+    function followThinLine() {
         let all_black = false
-        gigglebot.drive_straight(WhichDriveDirection.Forward)
+        gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
         while (!(all_black)) {
-            line_sensor = gigglebot.get_raw_line_sensors()
-            if (gigglebot.test_line(LineColor.Black)) {
+            lineSensors = gigglebot.lineSensorsRaw()
+            if (gigglebot.lineTest(gigglebotLineColor.Black)) {
                 all_black = true
-                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
-                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
                 gigglebot.stop()
-            } else if (gigglebot.test_line(LineColor.White)) {
-                gigglebot.drive_straight(WhichDriveDirection.Forward)
-            } else if (line_sensor[0] < LINE_FOLLOWER_THRESHOLD) {
-                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+            } else if (gigglebot.lineTest(gigglebotLineColor.White)) {
+                gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
+            } else if (lineSensors[0] < LINE_FOLLOWER_THRESHOLD) {
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                set_motor_power(WhichMotor.Left, motor_power_left + 5)
-            } else if (line_sensor[1] < LINE_FOLLOWER_THRESHOLD) {
-                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
+                motorPowerSet(gigglebotWhichMotor.Left, motorPowerLeft + 5)
+            } else if (lineSensors[1] < LINE_FOLLOWER_THRESHOLD) {
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                set_motor_power(WhichMotor.Right, motor_power_right + 5)
+                motorPowerSet(gigglebotWhichMotor.Right, motorPowerRight + 5)
             } else {
-                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
-                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
             }
-            strip.show()
+            stripNeopixel.show()
         }
     }
 
 /**
  * Follows a line that is thicker than the space between the two sensors
  */
-    function follow_thick_line() {
+    function followThickLine() {
         let all_white = false
-        gigglebot.drive_straight(WhichDriveDirection.Forward)
+        gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
         while (!(all_white)) {
-            line_sensor = gigglebot.get_raw_line_sensors()
-            if (gigglebot.test_line(LineColor.White)) {
+            lineSensors = gigglebot.lineSensorsRaw()
+            if (gigglebot.lineTest(gigglebotLineColor.White)) {
                 all_white = true
-                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
-                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
                 gigglebot.stop()
-            } else if (gigglebot.test_line(LineColor.Black)) {
-                gigglebot.drive_straight(WhichDriveDirection.Forward)
-            } else if (line_sensor[0] > LINE_FOLLOWER_THRESHOLD) {
-                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+            } else if (gigglebot.lineTest(gigglebotLineColor.Black)) {
+                gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
+            } else if (lineSensors[0] > LINE_FOLLOWER_THRESHOLD) {
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                gigglebot.turn(WhichTurnDirection.Right)
-            } else if (line_sensor[1] > LINE_FOLLOWER_THRESHOLD) {
-                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
+                gigglebot.turn(gigglebotWhichTurnDirection.Right)
+            } else if (lineSensors[1] > LINE_FOLLOWER_THRESHOLD) {
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                gigglebot.turn(WhichTurnDirection.Left)
+                gigglebot.turn(gigglebotWhichTurnDirection.Left)
             } else {
-                strip.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
-                strip.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
             }
-            strip.show()
+            stripNeopixel.show()
         }
     }
     /**
@@ -275,59 +262,59 @@ namespace gigglebot {
      * Distance covered during that time is related to the freshness of the batteries.
      */
     //% blockId="gigglebot_drive_x_millisec" block="drive %dir|for %delay|ms"
-    export function drive_X_millisec(dir: WhichDriveDirection, delay: number) {
+    export function driveMillisec(dir: gigglebotWhichDriveDirection, delay: number) {
         let dir_factor = 1
-        if (dir == WhichDriveDirection.Backward) {
+        if (dir == gigglebotWhichDriveDirection.Backward) {
             dir_factor = -1
         }
-        if (dir == WhichDriveDirection.Forward) {
+        if (dir == gigglebotWhichDriveDirection.Forward) {
             dir_factor = 1
         }
-        set_motor_powers(motor_power_left * dir_factor, motor_power_right * dir_factor)
+        motorPowerSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
         basic.pause(delay)
-        set_motor_power(WhichMotor.Both, 0)
+        motorPowerSet(gigglebotWhichMotor.Both, 0)
     }
 
     /**
      * Will make gigglebot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
      */
     //% blockId="gigglebot_turn_X_millisec" block="turn %turn_dir|for %delay|ms"
-    export function turn_X_millisec(turn_dir: WhichTurnDirection, delay: number) {
-        if (turn_dir == WhichTurnDirection.Left) {
-            set_motor_powers(0, motor_power_right)
+    export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
+        if (turn_dir == gigglebotWhichTurnDirection.Left) {
+            motorPowerSetBoth(0, motorPowerRight)
         }
         else {
-            set_motor_powers(motor_power_left, 0)
+            motorPowerSetBoth(motorPowerLeft, 0)
         }
         basic.pause(delay)
-        set_motor_power(WhichMotor.Both, 0)
+        motorPowerSet(gigglebotWhichMotor.Both, 0)
     }
 
     /**
      * Will let gigglebot move forward or backward until told otherwise (either by a stop block or a turn block).
      */
     //% blockId="gigglebot_drive_straight" block="drive %dir"
-    export function drive_straight(dir: WhichDriveDirection) {
+    export function driveStraight(dir: gigglebotWhichDriveDirection) {
         let dir_factor = 1
-        if (dir == WhichDriveDirection.Backward) {
+        if (dir == gigglebotWhichDriveDirection.Backward) {
             dir_factor = -1
         }
-        if (dir == WhichDriveDirection.Forward) {
+        if (dir == gigglebotWhichDriveDirection.Forward) {
             dir_factor = 1
         }
-        set_motor_powers(motor_power_left * dir_factor, motor_power_right * dir_factor)
+        motorPowerSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
     }
 
     /**
      * Will make gigglebot turn left or right until told otherwise (by a stop block or a drive block).
      */
     //% blockId="gigglebot_turn" block="turn %turn_dir"
-    export function turn(turn_dir: WhichTurnDirection) {
-        if (turn_dir == WhichTurnDirection.Left) {
-            set_motor_powers(0, motor_power_right)
+    export function turn(turn_dir: gigglebotWhichTurnDirection) {
+        if (turn_dir == gigglebotWhichTurnDirection.Left) {
+            motorPowerSetBoth(0, motorPowerRight)
         }
         else {
-            set_motor_powers(motor_power_left, 0)
+            motorPowerSetBoth(motorPowerLeft, 0)
         }
     }
 
@@ -336,7 +323,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_stop" block="stop"
     export function stop() {
-        set_motor_power(WhichMotor.Both, 0)
+        motorPowerSet(gigglebotWhichMotor.Both, 0)
     }
 
     /**
@@ -347,14 +334,14 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
     //% blockGap=32
-    export function set_speed(motor: WhichMotor, speed: WhichSpeed) {
-        if (motor != WhichMotor.Left) {
-            motor_power_right = speed - trim_right;
+    export function setSpeed(motor: gigglebotWhichMotor, speed: gigglebotWhichSpeed) {
+        if (motor != gigglebotWhichMotor.Left) {
+            motorPowerRight = speed - trimRight;
         }
-        if (motor != WhichMotor.Right) {
-            motor_power_left = speed - trim_left;
+        if (motor != gigglebotWhichMotor.Right) {
+            motorPowerLeft = speed - trimLeft;
         }
-        set_motor_powers(motor_power_left, motor_power_right)
+        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
     }
 
 
@@ -362,57 +349,57 @@ namespace gigglebot {
      * Use this block to turn a second Micro:bit into a remote controller.
      * Easiest approach is to put this block inside a "Forever" block.
      * You will need to use the "remote receiver mode" block on the GiggleBot itself.
-     * @param radio_block eg: 1
+     * @param radioBlock eg: 1
      */
     //% blockId="gigglebot_remote_control"
     //% block="external remote control, group %radio_block"
-    export function remote_control(radio_block: number): void {
-        let power_left = motor_power_left
-        let power_right = motor_power_right
-        radio.setGroup(radio_block)
-        power_left = ((motor_power_left * -1 * input.acceleration(Dimension.Y)) / 512) + ((50 * input.acceleration(Dimension.X)) / 512)
-        power_right = ((motor_power_right * -1 * input.acceleration(Dimension.Y)) / 512) - ((50 * input.acceleration(Dimension.X)) / 512)
+    export function remoteControl(radioBlock: number): void {
+        let powerLeft = motorPowerLeft
+        let powerRight = motorPowerRight
+        radio.setGroup(radioBlock)
+        powerLeft = ((motorPowerLeft * -1 * input.acceleration(Dimension.Y)) / 512) + ((50 * input.acceleration(Dimension.X)) / 512)
+        powerRight = ((motorPowerRight * -1 * input.acceleration(Dimension.Y)) / 512) - ((50 * input.acceleration(Dimension.X)) / 512)
         // limit those values from -100 to 100
-        power_left = Math.min(Math.max(power_left, 100), -100)
-        power_right = Math.min(Math.max(power_right, 100), -100)
-        if (Math.abs(power_left) < 2 && Math.abs(power_right) < 2) {
+        powerLeft = Math.min(Math.max(powerLeft, 100), -100)
+        powerRight = Math.min(Math.max(powerRight, 100), -100)
+        if (Math.abs(powerLeft) < 2 && Math.abs(powerRight) < 2) {
             basic.showIcon(IconNames.No)
-        } else if (power_left > 0 && power_right > 0) {
-            if (Math.abs(power_left - power_right) < 10) {
+        } else if (powerLeft > 0 && powerRight > 0) {
+            if (Math.abs(powerLeft - powerRight) < 10) {
                 basic.showArrow(ArrowNames.North)
-            } else if (power_left > power_right) {
+            } else if (powerLeft > powerRight) {
                 basic.showArrow(ArrowNames.NorthEast)
             } else {
                 basic.showArrow(ArrowNames.NorthWest)
             }
-        } else if (power_left < 0 && power_right < 0) {
-            if (Math.abs(power_left - power_right) < 10) {
+        } else if (powerLeft < 0 && powerRight < 0) {
+            if (Math.abs(powerLeft - powerRight) < 10) {
                 basic.showArrow(ArrowNames.South)
-            } else if (power_left > power_right) {
+            } else if (powerLeft > powerRight) {
                 basic.showArrow(ArrowNames.SouthWest)
             } else {
                 basic.showArrow(ArrowNames.SouthEast)
             }
-        } else if (power_left - power_right < 0) {
+        } else if (powerLeft - powerRight < 0) {
             basic.showArrow(ArrowNames.West)
-        } else if (power_left - power_right > 0) {
+        } else if (powerLeft - powerRight > 0) {
             basic.showArrow(ArrowNames.East)
         }
-        radio.sendValue(power_left+"", power_right)
+        radio.sendValue(powerLeft+"", powerRight)
     }
 
     const packet = new radio.Packet();
     /**
      * Use this block on the GiggleBot to control it with a second micro:bit
-     * @param radio_block eg:1
+     * @param radioBlock eg:1
      *
      */
     //% mutate=objectdestructuring
     //% mutateText=Packet
     //% mutateDefaults="radio_block"
     //% blockId=gigglebot_remote block="on received remote control, group %radio_block"
-    export function onRemoteControl(radio_block: number, cb: (packet: radio.Packet) => void) {
-        radio.setGroup(radio_block)
+    export function onRemoteControl(radioBlock: number, cb: (packet: radio.Packet) => void) {
+        radio.setGroup(radioBlock)
         radio.onDataReceived(() => {
             radio.receiveNumber();
             packet.receivedNumber = radio.receivedNumber();
@@ -430,10 +417,10 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_remote_control_action"
     //% block="do remote control action"
-    export function remote_control_action(): void {
-        motor_power_left = parseInt(packet.receivedString)
-        motor_power_right = packet.receivedNumber
-        set_motor_powers(motor_power_left, motor_power_right)
+    export function remoteControlAction(): void {
+        motorPowerLeft = parseInt(packet.receivedString)
+        motorPowerRight = packet.receivedNumber
+        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
     }
 
     //////////  NEOPIXEL BLOCKS
@@ -443,14 +430,14 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_eye" block="%which"
     //% subcategory=Lights
-    export function which_eye(which: WhichEye): neopixel.Strip {
+    export function whichEye(which: gigglebotWhichEye): neopixel.Strip {
 
-        if (which == WhichEye.Left)
-            return left_eye_neopixel
-        else if (which == WhichEye.Right)
-            return right_eye_neopixel
+        if (which == gigglebotWhichEye.Left)
+            return eyeNeopixelLeft
+        else if (which == gigglebotWhichEye.Right)
+            return eyeNeopixelRight
         else
-            return eyes
+            return eyeNeopixelBoth
     }
 
     /**
@@ -458,14 +445,14 @@ namespace gigglebot {
      */
     //% subcategory=Lights
     //% blockId="gigglebot_get_smile" block="smile"
-    export function share_smile(): neopixel.Strip {
-        return smile
+    export function smile(): neopixel.Strip {
+        return smileNeopixel
     }
 
     //% subcategory=Lights
     //% blockId="gigglebot_smile" block="display a  %smile_color|smile"
-    export function show_smile(smile_color: NeoPixelColors) {
-        smile.showColor(neopixel.colors(smile_color))
+    export function smileShow(smile_color: NeoPixelColors) {
+        smileNeopixel.showColor(neopixel.colors(smile_color))
     }
 
     /**
@@ -473,8 +460,8 @@ namespace gigglebot {
      */
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_smile" block="display a rainbow smile"
-    export function smile_rainbow() {
-        smile.showRainbow(1, 315)
+    export function smileRainbow() {
+        smileNeopixel.showRainbow(1, 315)
     }
 
     /**
@@ -484,12 +471,12 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockId="gigglebot_rainbow_cycle" block="cycle rainbow %nbcycles| times "
     //% blockSetVariable=smile
-    export function smile_cycle_rainbow(nbcycles: number = 3) {
-        smile.showRainbow(1, 315)
+    export function smileCycleRainbow(nbcycles: number = 3) {
+        smileNeopixel.showRainbow(1, 315)
         for (let _i = 0; _i < (nbcycles * 7); _i++) {
             basic.pause(100)
-            smile.rotate(1)
-            smile.show()
+            smileNeopixel.rotate(1)
+            smileNeopixel.show()
         }
     }
 
@@ -501,12 +488,12 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockSetVariable=smile
     //% blockId="gigglebot_rainbow_cycle_time" block="cycle rainbow every %delay| ms for %cycle_length| ms "
-    export function smile_cycle_rainbow_time(delay: number = 100, cycle_length: number = 3000) {
-        smile.showRainbow(1, 315)
+    export function smileCycleRainbowTime(delay: number = 100, cycle_length: number = 3000) {
+        smileNeopixel.showRainbow(1, 315)
         for (let _i = 0; _i < (cycle_length / delay); _i++) {
             basic.pause(delay)
-            smile.rotate(1)
-            smile.show()
+            smileNeopixel.rotate(1)
+            smileNeopixel.show()
         }
     }
 
@@ -517,8 +504,8 @@ namespace gigglebot {
     //% subcategory=Lights
     //% blockSetVariable=smile
     //% blockId="gigglebot_line_graph" block="display graph of %graph_value| with a max of %graph_max"
-    export function show_line_graph(graph_value: number, graph_max: number) {
-        smile.showBarGraph(graph_value, graph_max)
+    export function smileShowGraph(graph_value: number, graph_max: number) {
+        smileNeopixel.showBarGraph(graph_value, graph_max)
     }
 
 
@@ -530,14 +517,14 @@ namespace gigglebot {
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     //% subcategory=Sensors
     //% group=LineFollower
-    export function follow_line(type_of_line: LineType) {
-        strip.setBrightness(10)
+    export function lineFollow(type_of_line: gigglebotLineType) {
+        stripNeopixel.setBrightness(10)
 
-        if (type_of_line == LineType.Thin) {
-            follow_thin_line()
+        if (type_of_line == gigglebotLineType.Thin) {
+            followThinLine()
         }
         else {
-            follow_thick_line()
+            followThickLine()
         }
     }
 
@@ -547,13 +534,13 @@ namespace gigglebot {
     //% blockId="gigglebot_test_line" block="%which|line is detected"
     //% subcategory=Sensors
     //% group=LineFollower
-    export function test_line(color: LineColor): boolean {
-        get_raw_line_sensors()
-        for (let _i = 0; _i < line_sensor.length; _i++) {
-            if (color == LineColor.Black && line_sensor[_i] > LINE_FOLLOWER_THRESHOLD) {
+    export function lineTest(color: gigglebotLineColor): boolean {
+        lineSensorsRaw()
+        for (let _i = 0; _i < lineSensors.length; _i++) {
+            if (color == gigglebotLineColor.Black && lineSensors[_i] > LINE_FOLLOWER_THRESHOLD) {
                 return false
             }
-            if (color == LineColor.White && line_sensor[_i] < LINE_FOLLOWER_THRESHOLD) {
+            if (color == gigglebotLineColor.White && lineSensors[_i] < LINE_FOLLOWER_THRESHOLD) {
                 return false
             }
         }
@@ -568,9 +555,9 @@ namespace gigglebot {
     //% subcategory=Sensors
     //% group=LineFollower
     //% blockGap=32
-    export function get_line_sensor(which: WhichTurnDirection): number {
-        get_raw_line_sensors()
-        return line_sensor[which]
+    export function lineReadSensor(which: gigglebotWhichTurnDirection): number {
+        lineSensorsRaw()
+        return lineSensors[which]
     }
 
     /**
@@ -580,17 +567,17 @@ namespace gigglebot {
     //% subcategory=Sensors
     //% group=LightSensor
 
-    export function follow_light() {
+    export function lightFollow() {
         let diff = 0
-        let current_lights = get_raw_light_sensors()
+        let current_lights = lightSensorsRaw()
         diff = Math.abs((current_lights[0] - current_lights[1])) / 10;
         if (current_lights[0] > current_lights[1]) {
             // it's brighter to the right
-            set_motor_powers(motor_power_left, motor_power_right - diff)
+            motorPowerSetBoth(motorPowerLeft, motorPowerRight - diff)
         }
         else {
             // it's brighter to the left
-            set_motor_powers(motor_power_left - diff, motor_power_right)
+            motorPowerSetBoth(motorPowerLeft - diff, motorPowerRight)
         }
     }
 
@@ -603,9 +590,26 @@ namespace gigglebot {
     //% subcategory=Sensors
     //% group=LightSensor
     //% blockGap=32
-    export function get_light_sensor(which: WhichTurnDirection): number {
-        get_raw_light_sensors()
-        return light_sensor[which]
+    export function lightReadSensor(which: gigglebotWhichTurnDirection): number {
+        lightSensorsRaw()
+        return lightSensors[which]
+    }
+
+    /**
+    * Configures the Distance Sensor.
+    * must be called before doing any distance sensor readings.
+    */
+    //% blockId="DSconfigure" block="configure distance sensor"
+    //% subcategory=Sensors
+    //% group=LightSensor
+    export function distanceSensorConfigure() {
+        distanceSensor.init()
+        // set to long range (about 2.3 meters)
+        // set final range signal rate limit to 0.1 MCPS (million counts per second)
+        distanceSensor.setSignalRateLimitRaw(12) // 0.1 * (1 << 7) = 12.8
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodPreRange(), 18)
+        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodFinalRange(), 14)
+        distanceSensor.startContinuous(0)
     }
 
     /**
@@ -628,7 +632,7 @@ namespace gigglebot {
     //% group=LightSensor
     //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality| %dist| mm"
     //% blockGap=32
-    export function distanceSensorTestForObstacle(inequality: Inequality, dist: number): boolean {
+    export function distanceSensorTestForObstacle(inequality: gigglebotInequality, dist: number): boolean {
         if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
         }
@@ -640,7 +644,7 @@ namespace gigglebot {
                 return false
             }
         }
-        else if (inequality == Inequality.Farther) {
+        else if (inequality == gigglebotInequality.Farther) {
             if (distanceSensor.readRangeContinuousMillimeters() > dist) {
                 return true
             }
@@ -665,18 +669,18 @@ namespace gigglebot {
 
     //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
     //% subcategory=Servos
-    export function servo(which: ServoAction, degree: number) {
-        if (which == ServoAction.Right) {
+    export function servoMove(which: gigglebotServoAction, degree: number) {
+        if (which == gigglebotServoAction.Right) {
             pins.servoWritePin(AnalogPin.P13, degree)
         }
-        else if (which == ServoAction.Left) {
+        else if (which == gigglebotServoAction.Left) {
             pins.servoWritePin(AnalogPin.P14, degree)
         }
-        else if (which == ServoAction.Both) {
+        else if (which == gigglebotServoAction.Both) {
             pins.servoWritePin(AnalogPin.P13, degree)
             pins.servoWritePin(AnalogPin.P14, degree)
         }
-        else if (which == ServoAction.Mirror) {
+        else if (which == gigglebotServoAction.Mirror) {
             pins.servoWritePin(AnalogPin.P13, degree)
             pins.servoWritePin(AnalogPin.P14, 180 - degree)
         }
@@ -686,33 +690,36 @@ namespace gigglebot {
 
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
     //% advanced=true
-    export function set_motor_trim(dir: WhichTurnDirection, trim_value: number) {
-        if (dir == WhichTurnDirection.Left) {
-            trim_left = trim_value
-            motor_power_left = default_motor_power - trim_left
+    export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
+        init()
+
+        if (dir == gigglebotWhichTurnDirection.Left) {
+            trimLeft = trim_value
+            motorPowerLeft = defaultMotorPower - trimLeft
         }
-        if (dir == WhichTurnDirection.Right) {
-            trim_right = trim_value
-            motor_power_right = default_motor_power - trim_right
+        if (dir == gigglebotWhichTurnDirection.Right) {
+            trimRight = trim_value
+            motorPowerRight = defaultMotorPower - trimRight
         }
     }
 
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
-    export function set_motor_power(motor: WhichMotor, power: number) {
+    export function motorPowerSet(motor: gigglebotWhichMotor, power: number) {
+        init()
         let buf = pins.createBuffer(3)
-        buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.SET_MOTOR_POWER)
+        buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWER)
         buf.setNumber(NumberFormat.UInt8BE, 2, power)
         // activate right motor
-        if (motor == WhichMotor.Right) {
+        if (motor == gigglebotWhichMotor.Right) {
             buf.setNumber(NumberFormat.UInt8BE, 1, 0x01)
         }
         // activate left motor
-        else if (motor == WhichMotor.Left) {
+        else if (motor == gigglebotWhichMotor.Left) {
             buf.setNumber(NumberFormat.UInt8BE, 1, 0x02)
         }
         // activate both motors
-        else if (motor == WhichMotor.Both) {
+        else if (motor == gigglebotWhichMotor.Both) {
             buf.setNumber(NumberFormat.UInt8BE, 1, 0x03)
         }
         pins.i2cWriteBuffer(ADDR, buf, false);
@@ -720,9 +727,10 @@ namespace gigglebot {
 
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
-    export function set_motor_powers(left_power: number, right_power: number) {
+    export function motorPowerSetBoth(left_power: number, right_power: number) {
+        init()
         let buf = pins.createBuffer(3)
-        buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.SET_MOTOR_POWERS)
+        buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
         buf.setNumber(NumberFormat.UInt8BE, 1, right_power)
         buf.setNumber(NumberFormat.UInt8BE, 2, left_power)
         pins.i2cWriteBuffer(ADDR, buf, false);
@@ -733,20 +741,20 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_show_voltage" block="show battery voltage (mv)"
     //% advanced=true
-    export function show_voltage() {
-        let voltage = get_voltage()
+    export function voltageShow() {
+        let voltage = voltageRead()
         basic.showNumber(voltage)
     }
 
     //% blockId="gigglebot_get_firmware" block="firmware version number"
     //% advanced=true
-    export function get_firmware(): number {
+    export function firmwareVersion(): number {
         /**
          * TODO: describe your function here
          * @param value describe value here, eg: 5
          */
         let buf = pins.createBuffer(1)
-        buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_FIRMWARE_VERSION)
+        buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_FIRMWARE_VERSION)
         pins.i2cWriteBuffer(ADDR, buf)
         let val = pins.i2cReadBuffer(ADDR, 2)
         return val.getNumber(NumberFormat.UInt16BE, 0);
@@ -754,13 +762,13 @@ namespace gigglebot {
 
     //% blockId="gigglebot_get_voltage" block="battery voltage (mv)"
     //% advanced=true
-    export function get_voltage(): number {
+    export function voltageRail(): number {
         /**
          * TODO: describe your function here
          * @param value describe value here, eg: 5
          */
         let buf = pins.createBuffer(1)
-        buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_VOLTAGE_BATTERY)
+        buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_VOLTAGE_BATTERY)
         pins.i2cWriteBuffer(ADDR, buf)
         let val = pins.i2cReadBuffer(ADDR, 2)
         return val.getNumber(NumberFormat.UInt16BE, 0);
@@ -772,33 +780,33 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_read_raw_line_sensors" block="raw line sensors (x2)"
     //% advanced=true
-    export function get_raw_line_sensors(): number[] {
+    export function lineSensorsRaw(): number[] {
         let buf = pins.createBuffer(1)
-        buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_LINE_SENSORS)
+        buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LINE_SENSORS)
         pins.i2cWriteBuffer(ADDR, buf)
         let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
         for (let _i = 0; _i < 2; _i++) {
-            line_sensor[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
-            line_sensor[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
-            line_sensor[_i] = 1023 - line_sensor[_i]
+            lineSensors[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
+            lineSensors[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
+            lineSensors[_i] = 1023 - lineSensors[_i]
         }
-        return line_sensor
+        return lineSensors
     }
 
 
     //% blockId="gigglebot_read_raw_light_sensors" block="raw light sensors (x2)"
     //% advanced=true
-    export function get_raw_light_sensors(): number[] {
+    export function lightSensorsRaw(): number[] {
         let buf = pins.createBuffer(1)
-        buf.setNumber(NumberFormat.UInt8BE, 0, I2C_Commands.GET_LIGHT_SENSORS)
+        buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LIGHT_SENSORS)
         pins.i2cWriteBuffer(ADDR, buf)
         let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
         for (let _i = 0; _i < 2; _i++) {
-            light_sensor[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
-            light_sensor[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
-            light_sensor[_i] = 1023 - light_sensor[_i]
+            lightSensors[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
+            lightSensors[_i] |= (((raw_buffer.getNumber(NumberFormat.UInt8BE, 2) << (_i * 2)) & 0xC0) >> 6)
+            lightSensors[_i] = 1023 - lightSensors[_i]
         }
         // serial.writeNumbers(light_sensor)
-        return light_sensor
+        return lightSensors
     }
 }
