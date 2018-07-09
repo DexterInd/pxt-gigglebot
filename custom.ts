@@ -748,7 +748,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_get_firmware" block="firmware version number"
     //% advanced=true
-    export function firmwareRead(): number {
+    export function firmwareVersion(): number {
         /**
          * TODO: describe your function here
          * @param value describe value here, eg: 5
@@ -762,7 +762,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_get_voltage" block="battery voltage (mv)"
     //% advanced=true
-    export function voltageRead(): number {
+    export function voltageRail(): number {
         /**
          * TODO: describe your function here
          * @param value describe value here, eg: 5
