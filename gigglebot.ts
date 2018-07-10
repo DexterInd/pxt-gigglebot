@@ -172,7 +172,7 @@ namespace gigglebot {
         stripNeopixel.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
     }
     stripNeopixel.show()
-    if (voltageRead() < 3400) {
+    if (voltageBattery() < 3400) {
         eyeColorLeft = neopixel.colors(NeoPixelColors.Red)
         eyeColorRight = neopixel.colors(NeoPixelColors.Red)
     }
@@ -195,11 +195,11 @@ namespace gigglebot {
             } else if (lineSensors[0] < LINE_FOLLOWER_THRESHOLD) {
                 stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                motorPowerSet(gigglebotWhichMotor.Left, motorPowerLeft + 5)
+                motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
             } else if (lineSensors[1] < LINE_FOLLOWER_THRESHOLD) {
                 stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                motorPowerSet(gigglebotWhichMotor.Right, motorPowerRight + 5)
+                motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
             } else {
                 stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
                 stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
@@ -208,9 +208,9 @@ namespace gigglebot {
         }
     }
 
-/**
- * Follows a line that is thicker than the space between the two sensors
- */
+    /**
+     * Follows a line that is thicker than the space between the two sensors
+     */
     function followThickLine() {
         let all_white = false
         gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
@@ -220,17 +220,17 @@ namespace gigglebot {
                 all_white = true
                 stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
                 stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
-                gigglebot.stop()
+                stop()
             } else if (gigglebot.lineTest(gigglebotLineColor.Black)) {
-                gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
+                driveStraight(gigglebotWhichDriveDirection.Forward)
             } else if (lineSensors[0] > LINE_FOLLOWER_THRESHOLD) {
                 stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
-                gigglebot.stop()
-                gigglebot.turn(gigglebotWhichTurnDirection.Right)
+                stop()
+                turn(gigglebotWhichTurnDirection.Right)
             } else if (lineSensors[1] > LINE_FOLLOWER_THRESHOLD) {
                 stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
-                gigglebot.stop()
-                gigglebot.turn(gigglebotWhichTurnDirection.Left)
+                stop()
+                turn(gigglebotWhichTurnDirection.Left)
             } else {
                 stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
                 stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
@@ -261,33 +261,47 @@ namespace gigglebot {
      * Will let gigglebot move forward or backward for a number of milliseconds.
      * Distance covered during that time is related to the freshness of the batteries.
      */
-    //% blockId="gigglebot_drive_x_millisec" block="drive %dir|for %delay|ms"
+    //% blockId="gigglebotDriveMillisec" block="drive %dir|for %delay|ms"
+    //% delay.min:0
     export function driveMillisec(dir: gigglebotWhichDriveDirection, delay: number) {
-        let dir_factor = 1
-        if (dir == gigglebotWhichDriveDirection.Backward) {
-            dir_factor = -1
-        }
-        if (dir == gigglebotWhichDriveDirection.Forward) {
-            dir_factor = 1
-        }
-        motorPowerSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
+        driveStraight(gigglebotWhichDriveDirection.Forward)
         basic.pause(delay)
-        motorPowerSet(gigglebotWhichMotor.Both, 0)
+        stop()
     }
 
     /**
      * Will make gigglebot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
      */
-    //% blockId="gigglebot_turn_X_millisec" block="turn %turn_dir|for %delay|ms"
+    //% blockId="gigglebotTurnMillisec" block="turn %turn_dir|for %delay|ms"
+    //% delay.min:0
     export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
-        if (turn_dir == gigglebotWhichTurnDirection.Left) {
-            motorPowerSetBoth(0, motorPowerRight)
-        }
-        else {
-            motorPowerSetBoth(motorPowerLeft, 0)
-        }
+        turn(turn_dir)
         basic.pause(delay)
-        motorPowerSet(gigglebotWhichMotor.Both, 0)
+        stop()
+    }
+
+    /** 
+     * Gigglebot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
+     */
+    //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
+    //% delay.min:0
+    export function gigglebotSpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
+        gigglebotSpin(turn_dir)
+        basic.pause(delay)
+        stop()
+    }
+
+    /** 
+     * Gigglebot will drive forward while steering to one side for the provided number of milliseconds. 
+     * Useful when it needs to go around an obstacle, or orbit around an object.
+     * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
+     *      */
+    //% blockId="gigglebotSteerMillisec" block="steer %percent| towards the %dir| for %delay| ms"
+    //% percent.min=0 percent.max=100
+    export function steerMillisec(percent: number, dir: gigglebotWhichTurnDirection, delay: number) {
+        steer(percent, dir)
+        basic.pause(delay)
+        stop()
     }
 
     /**
@@ -302,20 +316,53 @@ namespace gigglebot {
         if (dir == gigglebotWhichDriveDirection.Forward) {
             dir_factor = 1
         }
-        motorPowerSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
+        motorPowerAssignBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
     }
 
     /**
      * Will make gigglebot turn left or right until told otherwise (by a stop block or a drive block).
      */
-    //% blockId="gigglebot_turn" block="turn %turn_dir"
+    //% blockId="gigglebotTurn" block="turn %turn_dir"
     export function turn(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
-            motorPowerSetBoth(0, motorPowerRight)
+            motorPowerAssignBoth(0, motorPowerRight)
         }
         else {
-            motorPowerSetBoth(motorPowerLeft, 0)
+            motorPowerAssignBoth(motorPowerLeft, 0)
         }
+    }
+
+    /** 
+     * Gigglebot will spin on itself until told otherwise, like a turn but staying in the same spot. Especially useful when drawing.
+     */
+    //% blockId="gigglebotSpin" block="spin %turn_dir"
+    export function gigglebotSpin(turn_dir: gigglebotWhichTurnDirection) {
+        if (turn_dir == gigglebotWhichTurnDirection.Left) {
+            motorPowerAssignBoth(-1 * motorPowerLeft, motorPowerRight)
+        }
+        else {
+            motorPowerAssignBoth(motorPowerLeft, -1 * motorPowerRight)
+        }
+    }
+
+    /** 
+     * Gigglebot will drive forward while steering to one side. 
+     * Useful when it needs to go around an obstacle, or orbit around an object.
+     * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
+     */
+    //% blockId="gigglebotSteer" block="steer %percent| towards the %dir"
+    //% percent.min=0 percent.max=100
+    export function steer(percent: number, dir: gigglebotWhichTurnDirection) {
+        let correctedMotorPowerLeft = motorPowerLeft
+        let correctedMotorPowerRight = motorPowerRight
+        if (dir == gigglebotWhichTurnDirection.Left) {
+            correctedMotorPowerLeft = motorPowerLeft - (motorPowerLeft * percent) / 100
+            correctedMotorPowerRight = motorPowerRight + (motorPowerRight * percent) / 100
+        } else {
+            correctedMotorPowerLeft = motorPowerLeft + (motorPowerLeft * percent) / 100
+            correctedMotorPowerRight = motorPowerRight - (motorPowerRight * percent) / 100
+        }
+        motorPowerAssignBoth(correctedMotorPowerLeft, correctedMotorPowerRight)
     }
 
     /**
@@ -323,7 +370,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_stop" block="stop"
     export function stop() {
-        motorPowerSet(gigglebotWhichMotor.Both, 0)
+        motorPowerAssign(gigglebotWhichMotor.Both, 0)
     }
 
     /**
@@ -341,7 +388,7 @@ namespace gigglebot {
         if (motor != gigglebotWhichMotor.Right) {
             motorPowerLeft = speed - trimLeft;
         }
-        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
+        motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
 
@@ -385,7 +432,7 @@ namespace gigglebot {
         } else if (powerLeft - powerRight > 0) {
             basic.showArrow(ArrowNames.East)
         }
-        radio.sendValue(powerLeft+"", powerRight)
+        radio.sendValue(powerLeft + "", powerRight)
     }
 
     const packet = new radio.Packet();
@@ -420,7 +467,7 @@ namespace gigglebot {
     export function remoteControlAction(): void {
         motorPowerLeft = parseInt(packet.receivedString)
         motorPowerRight = packet.receivedNumber
-        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
+        motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
     //////////  NEOPIXEL BLOCKS
@@ -573,11 +620,11 @@ namespace gigglebot {
         diff = Math.abs((current_lights[0] - current_lights[1])) / 10;
         if (current_lights[0] > current_lights[1]) {
             // it's brighter to the right
-            motorPowerSetBoth(motorPowerLeft, motorPowerRight - diff)
+            motorPowerAssignBoth(motorPowerLeft, motorPowerRight - diff)
         }
         else {
             // it's brighter to the left
-            motorPowerSetBoth(motorPowerLeft - diff, motorPowerRight)
+            motorPowerAssignBoth(motorPowerLeft - diff, motorPowerRight)
         }
     }
 
@@ -596,30 +643,13 @@ namespace gigglebot {
     }
 
     /**
-    * Configures the Distance Sensor.
-    * must be called before doing any distance sensor readings.
-    */
-    //% blockId="DSconfigure" block="configure distance sensor"
-    //% subcategory=Sensors
-    //% group=LightSensor
-    export function distanceSensorConfigure() {
-        distanceSensor.init()
-        // set to long range (about 2.3 meters)
-        // set final range signal rate limit to 0.1 MCPS (million counts per second)
-        distanceSensor.setSignalRateLimitRaw(12) // 0.1 * (1 << 7) = 12.8
-        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodPreRange(), 18)
-        distanceSensor.setVcselPulsePeriod(distanceSensor.vcselPeriodFinalRange(), 14)
-        distanceSensor.startContinuous(0)
-    }
-
-    /**
      * Get a reading of how far an obstacle is from the distanse sensor.
      */
     //% blockId="distanceSensorReadRangeContinuous" block="distance to obstacle (mm)"
     //% subcategory=Sensors
     //% group=LightSensor
     export function distanceSensorReadRangeContinuous(): number {
-        if (distanceSensorInitDone == false){
+        if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
         }
         return distanceSensor.readRangeContinuousMillimeters()
@@ -636,7 +666,7 @@ namespace gigglebot {
         if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
         }
-        if (inequality == Inequality.Closer) {
+        if (inequality == gigglebotInequality.Closer) {
             if (distanceSensor.readRangeContinuousMillimeters() < dist) {
                 return true
             }
@@ -655,9 +685,9 @@ namespace gigglebot {
         return false
     }
 
-/**
- * Distance Sensor: takes a single reading.
- */
+    /**
+     * Distance Sensor: takes a single reading.
+     */
     export function distanceSensorReadRangeSingle(): number {
         if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
@@ -691,8 +721,6 @@ namespace gigglebot {
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
     //% advanced=true
     export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
-        init()
-
         if (dir == gigglebotWhichTurnDirection.Left) {
             trimLeft = trim_value
             motorPowerLeft = defaultMotorPower - trimLeft
@@ -705,8 +733,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
-    export function motorPowerSet(motor: gigglebotWhichMotor, power: number) {
-        init()
+    export function motorPowerAssign(motor: gigglebotWhichMotor, power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWER)
         buf.setNumber(NumberFormat.UInt8BE, 2, power)
@@ -727,8 +754,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
-    export function motorPowerSetBoth(left_power: number, right_power: number) {
-        init()
+    export function motorPowerAssignBoth(left_power: number, right_power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
         buf.setNumber(NumberFormat.UInt8BE, 1, right_power)
@@ -742,7 +768,7 @@ namespace gigglebot {
     //% blockId="gigglebot_show_voltage" block="show battery voltage (mv)"
     //% advanced=true
     export function voltageShow() {
-        let voltage = voltageRead()
+        let voltage = voltageBattery()
         basic.showNumber(voltage)
     }
 
@@ -762,7 +788,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_get_voltage" block="battery voltage (mv)"
     //% advanced=true
-    export function voltageRail(): number {
+    export function voltageBattery(): number {
         /**
          * TODO: describe your function here
          * @param value describe value here, eg: 5
