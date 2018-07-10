@@ -172,7 +172,7 @@ namespace gigglebot {
         stripNeopixel.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
     }
     stripNeopixel.show()
-    if (voltageRail() < 3400) {
+    if (voltageBattery() < 3400) {
         eyeColorLeft = neopixel.colors(NeoPixelColors.Red)
         eyeColorRight = neopixel.colors(NeoPixelColors.Red)
     }
@@ -195,11 +195,11 @@ namespace gigglebot {
             } else if (lineSensors[0] < LINE_FOLLOWER_THRESHOLD) {
                 stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                motorPowerSet(gigglebotWhichMotor.Left, motorPowerLeft + 5)
+                motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
             } else if (lineSensors[1] < LINE_FOLLOWER_THRESHOLD) {
                 stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
-                motorPowerSet(gigglebotWhichMotor.Right, motorPowerRight + 5)
+                motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
             } else {
                 stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
                 stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
@@ -316,7 +316,7 @@ namespace gigglebot {
         if (dir == gigglebotWhichDriveDirection.Forward) {
             dir_factor = 1
         }
-        motorPowerSetBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
+        motorPowerAssignBoth(motorPowerLeft * dir_factor, motorPowerRight * dir_factor)
     }
 
     /**
@@ -325,10 +325,10 @@ namespace gigglebot {
     //% blockId="gigglebotTurn" block="turn %turn_dir"
     export function turn(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
-            motorPowerSetBoth(0, motorPowerRight)
+            motorPowerAssignBoth(0, motorPowerRight)
         }
         else {
-            motorPowerSetBoth(motorPowerLeft, 0)
+            motorPowerAssignBoth(motorPowerLeft, 0)
         }
     }
 
@@ -338,10 +338,10 @@ namespace gigglebot {
     //% blockId="gigglebotSpin" block="spin %turn_dir"
     export function gigglebotSpin(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
-            motorPowerSetBoth(-1 * motorPowerLeft, motorPowerRight)
+            motorPowerAssignBoth(-1 * motorPowerLeft, motorPowerRight)
         }
         else {
-            motorPowerSetBoth(motorPowerLeft, -1 * motorPowerRight)
+            motorPowerAssignBoth(motorPowerLeft, -1 * motorPowerRight)
         }
     }
 
@@ -362,7 +362,7 @@ namespace gigglebot {
             correctedMotorPowerLeft = motorPowerLeft + (motorPowerLeft * percent) / 100
             correctedMotorPowerRight = motorPowerRight - (motorPowerRight * percent) / 100
         }
-        motorPowerSetBoth(correctedMotorPowerLeft, correctedMotorPowerRight)
+        motorPowerAssignBoth(correctedMotorPowerLeft, correctedMotorPowerRight)
     }
 
     /**
@@ -370,7 +370,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_stop" block="stop"
     export function stop() {
-        motorPowerSet(gigglebotWhichMotor.Both, 0)
+        motorPowerAssign(gigglebotWhichMotor.Both, 0)
     }
 
     /**
@@ -388,7 +388,7 @@ namespace gigglebot {
         if (motor != gigglebotWhichMotor.Right) {
             motorPowerLeft = speed - trimLeft;
         }
-        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
+        motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
 
@@ -467,7 +467,7 @@ namespace gigglebot {
     export function remoteControlAction(): void {
         motorPowerLeft = parseInt(packet.receivedString)
         motorPowerRight = packet.receivedNumber
-        motorPowerSetBoth(motorPowerLeft, motorPowerRight)
+        motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
     //////////  NEOPIXEL BLOCKS
@@ -620,11 +620,11 @@ namespace gigglebot {
         diff = Math.abs((current_lights[0] - current_lights[1])) / 10;
         if (current_lights[0] > current_lights[1]) {
             // it's brighter to the right
-            motorPowerSetBoth(motorPowerLeft, motorPowerRight - diff)
+            motorPowerAssignBoth(motorPowerLeft, motorPowerRight - diff)
         }
         else {
             // it's brighter to the left
-            motorPowerSetBoth(motorPowerLeft - diff, motorPowerRight)
+            motorPowerAssignBoth(motorPowerLeft - diff, motorPowerRight)
         }
     }
 
@@ -733,7 +733,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
-    export function motorPowerSet(motor: gigglebotWhichMotor, power: number) {
+    export function motorPowerAssign(motor: gigglebotWhichMotor, power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWER)
         buf.setNumber(NumberFormat.UInt8BE, 2, power)
@@ -754,7 +754,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
-    export function motorPowerSetBoth(left_power: number, right_power: number) {
+    export function motorPowerAssignBoth(left_power: number, right_power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
         buf.setNumber(NumberFormat.UInt8BE, 1, right_power)
@@ -768,7 +768,7 @@ namespace gigglebot {
     //% blockId="gigglebot_show_voltage" block="show battery voltage (mv)"
     //% advanced=true
     export function voltageShow() {
-        let voltage = voltageRail()
+        let voltage = voltageBattery()
         basic.showNumber(voltage)
     }
 
@@ -788,7 +788,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_get_voltage" block="battery voltage (mv)"
     //% advanced=true
-    export function voltageRail(): number {
+    export function voltageBattery(): number {
         /**
          * TODO: describe your function here
          * @param value describe value here, eg: 5
