@@ -266,7 +266,42 @@ namespace gigglebot {
     export function driveMillisec(dir: gigglebotWhichDriveDirection, delay: number) {
         driveStraight(gigglebotWhichDriveDirection.Forward)
         basic.pause(delay)
-        motorPowerSet(gigglebotWhichMotor.Both, 0)
+        stop()
+    }
+
+    /**
+     * Will make gigglebot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
+     */
+    //% blockId="gigglebotTurnMillisec" block="turn %turn_dir|for %delay|ms"
+    //% delay.min:0
+    export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
+        turn(turn_dir)
+        basic.pause(delay)
+        stop()
+    }
+
+    /** 
+     * Gigglebot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
+     */
+    //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
+    //% delay.min:0
+    export function gigglebotSpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
+        gigglebotSpin(turn_dir)
+        basic.pause(delay)
+        stop()
+    }
+
+    /** 
+     * Gigglebot will drive forward while steering to one side for the provided number of milliseconds. 
+     * Useful when it needs to go around an obstacle, or orbit around an object.
+     * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
+     *      */
+    //% blockId="gigglebotSteerMillisec" block="steer %percent| towards the %dir| for %delay| ms"
+    //% percent.min=0 percent.max=100
+    export function steerMillisec(percent: number, dir: gigglebotWhichTurnDirection, delay: number) {
+        steer(percent, dir)
+        basic.pause(delay)
+        stop()
     }
 
     /**
@@ -285,17 +320,6 @@ namespace gigglebot {
     }
 
     /**
-     * Will make gigglebot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
-     */
-    //% blockId="gigglebotTurnMillisec" block="turn %turn_dir|for %delay|ms"
-    //% delay.min:0
-    export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
-        turn(turn_dir)
-        basic.pause(delay)
-        motorPowerSet(gigglebotWhichMotor.Both, 0)
-    }
-
-    /**
      * Will make gigglebot turn left or right until told otherwise (by a stop block or a drive block).
      */
     //% blockId="gigglebotTurn" block="turn %turn_dir"
@@ -306,17 +330,6 @@ namespace gigglebot {
         else {
             motorPowerSetBoth(motorPowerLeft, 0)
         }
-    }
-
-    /** 
-     * Gigglebot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
-     */
-    //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
-    //% delay.min:0
-    export function gigglebotSpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
-        gigglebotSpin(turn_dir)
-        basic.pause(delay)
-        motorPowerSet(gigglebotWhichMotor.Both, 0)
     }
 
     /** 
@@ -333,10 +346,11 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will drive forward while steering to one side. Useful when it needs to go around an obstacle, or orbit around an object.
-     * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.)
-     *      */
-    //% blockId="gigglebotSteer" block="steer %percent| to the %dir"
+     * Gigglebot will drive forward while steering to one side. 
+     * Useful when it needs to go around an obstacle, or orbit around an object.
+     * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
+     */
+    //% blockId="gigglebotSteer" block="steer %percent| towards the %dir"
     //% percent.min=0 percent.max=100
     export function steer(percent: number, dir: gigglebotWhichTurnDirection) {
         let correctedMotorPowerLeft = motorPowerLeft
