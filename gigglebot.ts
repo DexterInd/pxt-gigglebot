@@ -407,31 +407,8 @@ namespace gigglebot {
         powerLeft = ((motorPowerLeft * -1 * input.acceleration(Dimension.Y)) / 512) + ((50 * input.acceleration(Dimension.X)) / 512)
         powerRight = ((motorPowerRight * -1 * input.acceleration(Dimension.Y)) / 512) - ((50 * input.acceleration(Dimension.X)) / 512)
         // limit those values from -100 to 100
-        powerLeft = Math.min(Math.max(powerLeft, 100), -100)
-        powerRight = Math.min(Math.max(powerRight, 100), -100)
-        if (Math.abs(powerLeft) < 2 && Math.abs(powerRight) < 2) {
-            basic.showIcon(IconNames.No)
-        } else if (powerLeft > 0 && powerRight > 0) {
-            if (Math.abs(powerLeft - powerRight) < 10) {
-                basic.showArrow(ArrowNames.North)
-            } else if (powerLeft > powerRight) {
-                basic.showArrow(ArrowNames.NorthEast)
-            } else {
-                basic.showArrow(ArrowNames.NorthWest)
-            }
-        } else if (powerLeft < 0 && powerRight < 0) {
-            if (Math.abs(powerLeft - powerRight) < 10) {
-                basic.showArrow(ArrowNames.South)
-            } else if (powerLeft > powerRight) {
-                basic.showArrow(ArrowNames.SouthWest)
-            } else {
-                basic.showArrow(ArrowNames.SouthEast)
-            }
-        } else if (powerLeft - powerRight < 0) {
-            basic.showArrow(ArrowNames.West)
-        } else if (powerLeft - powerRight > 0) {
-            basic.showArrow(ArrowNames.East)
-        }
+        powerLeft = Math.min(Math.max(powerLeft, -100), 100)
+        powerRight = Math.min(Math.max(powerRight, -100), 100)
         radio.sendValue(powerLeft + "", powerRight)
     }
 
