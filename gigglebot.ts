@@ -410,30 +410,6 @@ namespace gigglebot {
         powerLeft = Math.min(Math.max(powerLeft, -100), 100)
         powerRight = Math.min(Math.max(powerRight, -100), 100)
         radio.sendValue(powerLeft + "", powerRight)
-        if (Math.abs(powerLeft) < 2 && Math.abs(powerRight) < 2) {
-            basic.showIcon(IconNames.No)
-        } else if (powerLeft > 0 && powerRight > 0) {
-            if (Math.abs(powerLeft - powerRight) < 10) {
-                basic.showArrow(ArrowNames.North)
-            } else if (powerLeft > powerRight) {
-                basic.showArrow(ArrowNames.NorthEast)
-            } else {
-                basic.showArrow(ArrowNames.NorthWest)
-            }
-        } else if (powerLeft < 0 && powerRight < 0) {
-            if (Math.abs(powerLeft - powerRight) < 10) {
-                basic.showArrow(ArrowNames.South)
-            } else if (powerLeft > powerRight) {
-                basic.showArrow(ArrowNames.SouthWest)
-            } else {
-                basic.showArrow(ArrowNames.SouthEast)
-            }
-        } else if (powerLeft - powerRight < 0) {
-            basic.showArrow(ArrowNames.West)
-        } else if (powerLeft - powerRight > 0) {
-            basic.showArrow(ArrowNames.East)
-        }
-        radio.sendValue(powerLeft + "", powerRight)
     }
 
     const packet = new radio.Packet();
