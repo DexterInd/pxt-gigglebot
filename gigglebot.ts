@@ -637,7 +637,7 @@ namespace gigglebot {
      */
     //% subcategory=Sensors
     //% group=LightSensor
-    //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality%| %dist| mm"
+    //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality| %dist| mm"
     //% blockGap=32
     export function distanceSensorTestForObstacle(inequality: gigglebotInequality, dist: number): boolean {
         if (distanceSensorInitDone == false) {
