@@ -1,6 +1,6 @@
 {
   "gigglebot.distanceSensorReadRangeContinuous|block": "distance to obstacle (mm)",
-  "gigglebot.distanceSensorTestForObstacle|block": "obstacle is %inequality%| %dist| mm",
+  "gigglebot.distanceSensorTestForObstacle|block": "obstacle is %inequality| %dist| mm",
   "gigglebot.driveMillisec|block": "drive %dir|for %delay|ms",
   "gigglebot.driveStraight|block": "drive %dir",
   "gigglebot.firmwareVersion|block": "firmware version number",
