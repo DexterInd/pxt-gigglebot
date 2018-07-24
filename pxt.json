@@ -1,6 +1,6 @@
 {
     "name": "gigglebot",
-    "version": "v0.0.5",
+    "version": "v0.0.6",
     "dependencies": {
         "core": "*",
         "radio": "*",
