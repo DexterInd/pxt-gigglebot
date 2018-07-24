@@ -203,8 +203,8 @@ namespace gigglebot {
                 motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
             } else {
                 // this should never happen
-                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Magenta))
-                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Magenta))
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Violet))
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Violet))
             }
             stripNeopixel.show()
         }
