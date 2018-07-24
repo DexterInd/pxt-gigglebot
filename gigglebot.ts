@@ -138,16 +138,9 @@ namespace gigglebot {
      */
 
     let LINE_FOLLOWER_THRESHOLD = 100
-    let MOTOR_LEFT = 0x01
-    let MOTOR_RIGHT = 0x02
     let ADDR = 0x04
 
     let distanceSensorInitDone = false;
-
-    let motorDegreesPerSecondLeft = gigglebotWhichSpeed.Normal
-    let motorDegreesPerSecondRight = gigglebotWhichSpeed.Normal
-    let directionLeft = gigglebotWhichDriveDirection.Forward
-    let DirectionLeft = gigglebotWhichDriveDirection.Forward
     let lineSensors = [0, 0]
     let lightSensors = [0, 0]
 
@@ -164,45 +157,54 @@ namespace gigglebot {
     let eyeColorLeft = neopixel.colors(NeoPixelColors.Blue)
     let eyeColorRight = neopixel.colors(NeoPixelColors.Blue)
     let smileNeopixel = stripNeopixel.range(2, 7)
-    eyeNeopixelBoth.setBrightness(10)
-    eyeNeopixelLeft.setBrightness(10)
-    eyeNeopixelRight.setBrightness(10)
-    smileNeopixel.setBrightness(40)
-    for (let _i = 0; _i < gigglebotGigglePixels.SmileSeven; _i++) {
-        stripNeopixel.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
+    init_neopixels()
+
+    function init_neopixels() {
+        eyeNeopixelBoth.setBrightness(10)
+        eyeNeopixelLeft.setBrightness(10)
+        eyeNeopixelRight.setBrightness(10)
+        smileNeopixel.setBrightness(40)
+        for (let _i = 0; _i < gigglebotGigglePixels.SmileSeven; _i++) {
+            stripNeopixel.setPixelColor(_i, neopixel.colors(NeoPixelColors.Black))
+        }
+        stripNeopixel.show()
+        if (voltageBattery() < 3400) {
+            eyeColorLeft = neopixel.colors(NeoPixelColors.Red)
+            eyeColorRight = neopixel.colors(NeoPixelColors.Red)
+        }
+        eyeNeopixelLeft.setPixelColor(0, eyeColorLeft)
+        eyeNeopixelRight.setPixelColor(0, eyeColorRight)
+        eyeNeopixelBoth.show()
     }
-    stripNeopixel.show()
-    if (voltageBattery() < 3400) {
-        eyeColorLeft = neopixel.colors(NeoPixelColors.Red)
-        eyeColorRight = neopixel.colors(NeoPixelColors.Red)
-    }
-    eyeNeopixelLeft.setPixelColor(0, eyeColorLeft)
-    eyeNeopixelRight.setPixelColor(0, eyeColorRight)
-    eyeNeopixelBoth.show()
 
     function followThinLine() {
         let all_black = false
         gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
         while (!(all_black)) {
             lineSensors = gigglebot.lineSensorsRaw()
-            if (gigglebot.lineTest(gigglebotLineColor.Black)) {
+            if (gigglebot.lineTest(gigglebotLineColor.Black)) { 
+                // We're done
                 all_black = true
-                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
-                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Black))
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
                 gigglebot.stop()
             } else if (gigglebot.lineTest(gigglebotLineColor.White)) {
+                // Line is between the two sensors, hopefully
                 gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
             } else if (lineSensors[0] < LINE_FOLLOWER_THRESHOLD) {
-                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Blue))
+                // correct towards the right
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Yellow))
                 gigglebot.stop()
                 motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
             } else if (lineSensors[1] < LINE_FOLLOWER_THRESHOLD) {
-                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Blue))
+                // correct towards the let
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Yellow))
                 gigglebot.stop()
                 motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
             } else {
-                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Green))
-                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Green))
+                // this should never happen
+                stripNeopixel.setPixelColor(0, neopixel.colors(NeoPixelColors.Magenta))
+                stripNeopixel.setPixelColor(1, neopixel.colors(NeoPixelColors.Magenta))
             }
             stripNeopixel.show()
         }
@@ -253,9 +255,9 @@ namespace gigglebot {
         distanceSensorInitDone = true
     }
 
-    //////////////////
+    ////////////////////////////////////////////////////////////////////////
     ////////// BLOCKS
-    //////////////////
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * Will let gigglebot move forward or backward for a number of milliseconds.
@@ -447,7 +449,10 @@ namespace gigglebot {
         motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
+
+    ///////////////////////////////////////////////////////////////////////
     //////////  NEOPIXEL BLOCKS
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * Lets you use the blocks in the neopixel category for better control over the eyes.
@@ -532,8 +537,10 @@ namespace gigglebot {
         smileNeopixel.showBarGraph(graph_value, graph_max)
     }
 
-
+    ///////////////////////////////////////////////////////////////////////
     /////////// LINE FOLLOWER BLOCKS
+    ///////////////////////////////////////////////////////////////////////
+
     /**
      * A thin black line would fall between the two sensors. The gigglebot will stop when both sensors are reading black.
      * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
@@ -571,7 +578,6 @@ namespace gigglebot {
         return true
     }
 
-
     /**
     * Reads left or right line sensor
     */
@@ -583,6 +589,11 @@ namespace gigglebot {
         lineSensorsRaw()
         return lineSensors[which]
     }
+
+
+    ///////////////////////////////////////////////////////////////////////
+    /////////// LIGHT SENSOR BLOCKS
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * Will follow a spotlight shone on its eyes. If the spotlight disappears the gigglebot will stop.
@@ -618,6 +629,10 @@ namespace gigglebot {
         lightSensorsRaw()
         return lightSensors[which]
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    /////////// DISTANCE SENSOR
+    ///////////////////////////////////////////////////////////////////////
 
     /**
      * Get a reading of how far an obstacle is from the distanse sensor.
@@ -672,7 +687,11 @@ namespace gigglebot {
         return distanceSensor.readRangeSingleMillimeters()
     }
 
+
+    ///////////////////////////////////////////////////////////////////////
     /////////// SERVO BLOCKS
+    ///////////////////////////////////////////////////////////////////////
+
 
     //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
     //% subcategory=Servos
@@ -693,7 +712,9 @@ namespace gigglebot {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////
     /////////// MORE BLOCKS
+    ///////////////////////////////////////////////////////////////////////
 
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
     //% advanced=true
