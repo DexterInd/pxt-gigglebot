@@ -3,7 +3,7 @@
   "gigglecore.distanceSensorTestForObstacle|block": "obstacle se trouve %inequality| %dist| mm",
   "gigglecore.driveMillisec|block": "%dir|pendant %delay|ms",
   "gigglecore.driveStraight|block": "%dir",
-  "gigglecore.firmwareVersion|block": "version du firmwware",
+  "gigglecore.firmwareVersion|block": "version du firmware",
   "gigglecore.gigglebotSpinMillisec|block": "pivoter vers la %turn_dir|pendant %delay|ms",
   "gigglecore.gigglebotSpin|block": "pivoter vers la %turn_dir",
   "gigglecore.lightFollow|block": "suivre la lumière",
