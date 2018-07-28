@@ -264,6 +264,7 @@ namespace gigglebot {
      * @param delay for how many milliseconds; eg: 1000
      */
     //% blockId="gigglebotDriveMillisec" block="drive %dir|for %delay|ms"
+    //% weight=100
     //% delay.min=0
     export function driveMillisec(dir: gigglebotWhichDriveDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -278,6 +279,7 @@ namespace gigglebot {
      * @param delay for how many milliseconds; eg: 1000
      */
     //% blockId="gigglebotTurnMillisec" block="turn %turn_dir|for %delay|ms"
+    //% weight=99
     //% delay.min=0
     export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -292,6 +294,7 @@ namespace gigglebot {
      * @param delay how many milliseconds; eg: 1000
      */
     //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
+    //% weight=98
     //% delay.min=0
     export function gigglebotSpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -310,6 +313,7 @@ namespace gigglebot {
      *      */
     //% blockId="gigglebotSteerMillisec" block="steer %percent| towards the %dir| for %delay| ms"
     //% percent.min=0 percent.max=100
+    //% weight=97
     export function steerMillisec(percent: number, dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
         if (percent < 0) percent = 0
@@ -324,6 +328,7 @@ namespace gigglebot {
      * @param dir forward or backward
      */
     //% blockId="gigglebot_drive_straight" block="drive %dir"
+    //% weight=89
     export function driveStraight(dir: gigglebotWhichDriveDirection) {
         let dir_factor = 1
         if (dir == gigglebotWhichDriveDirection.Backward) {
@@ -339,6 +344,7 @@ namespace gigglebot {
      * Will make gigglebot turn left or right until told otherwise (by a stop block or a drive block).
      */
     //% blockId="gigglebotTurn" block="turn %turn_dir"
+    //% weight=88
     export function turn(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
             motorPowerAssignBoth(0, motorPowerRight)
@@ -353,6 +359,7 @@ namespace gigglebot {
      * @param turn_dir left or right;
      */
     //% blockId="gigglebotSpin" block="spin %turn_dir"
+    //% weight=87
     export function gigglebotSpin(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
             motorPowerAssignBoth(-1 * motorPowerLeft, motorPowerRight)
@@ -371,6 +378,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebotSteer" block="steer %percent| towards the %dir"
     //% percent.min=0 percent.max=100
+    //% weight=86
     export function steer(percent: number, dir: gigglebotWhichTurnDirection) {
         percent = Math.min(Math.max(percent, 0), 100)
         let correctedMotorPowerLeft = motorPowerLeft
@@ -389,6 +397,7 @@ namespace gigglebot {
     * stops the robot.
     */
     //% blockId="gigglebot_stop" block="stop"
+    //% weight=70
     export function stop() {
         motorPowerAssign(gigglebotWhichMotor.Both, 0)
     }
@@ -403,6 +412,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
     //% speed.min=-100 speed.max=100
+    //% weight=60
     export function setSpeed(motor: gigglebotWhichMotor, speed: gigglebotWhichSpeed) {
         speed = Math.min(Math.max(speed, -100), 100)
         if (motor != gigglebotWhichMotor.Left) {
@@ -429,7 +439,9 @@ namespace gigglebot {
      * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
      * @param type_of_line thin line or thick line
     */
+    //% group=LineFollower
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
+    //% weight=50
     export function lineFollow(type_of_line: gigglebotLineType) {
         if (type_of_line == gigglebotLineType.Thin) {
             followThinLine()
@@ -445,6 +457,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_test_line" block="%which|line is detected"
     //% advanced=true
+    //% group=LineFollower
     export function lineTest(color: gigglebotLineColor): boolean {
         lineSensorsRaw()
         for (let _i = 0; _i < lineSensors.length; _i++) {
@@ -464,6 +477,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_read_line_sensors" block="%which|line sensor"
     //% advanced=true
+    //% group=LineFollower
     export function lineReadSensor(which: gigglebotWhichTurnDirection): number {
         lineSensorsRaw()
         return lineSensors[which]
@@ -477,6 +491,8 @@ namespace gigglebot {
      * Will follow a spotlight shone on its eyes. If the spotlight disappears the gigglebot will stop.
      */
     //% blockId="gigglebot_follow_light" block="follow light"
+    //% group=LightSensors
+    //% weight=40
     export function lightFollow() {
         let diff = 0
         let current_lights = lightSensorsRaw()
@@ -499,6 +515,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
     //% advanced=true
+    //% group=LightSensors
     export function lightReadSensor(which: gigglebotWhichTurnDirection): number {
         lightSensorsRaw()
         return lightSensors[which]
@@ -513,6 +530,7 @@ namespace gigglebot {
      */
     //% blockId="distanceSensorReadRangeContinuous" block="distance to obstacle (mm)"
     //% advanced=true
+    //% group=DistanceSensor
     export function distanceSensorReadRangeContinuous(): number {
         if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
@@ -526,6 +544,8 @@ namespace gigglebot {
      * @param dist how many millimeters; eg: 100
      */
     //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality| %dist| mm"
+    //% group=DistanceSensor
+    //% weight=30
     export function distanceSensorTestForObstacle(inequality: gigglebotInequality, dist: number): boolean {
         if (distanceSensorInitDone == false) {
             distanceSensorConfigure()
