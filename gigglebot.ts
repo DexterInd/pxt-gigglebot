@@ -296,7 +296,7 @@ namespace gigglebot {
     //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
     //% weight=98
     //% delay.min=0
-    export function gigglebotSpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
+    export function SpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
         gigglebotSpin(turn_dir)
         basic.pause(delay)
