@@ -43,11 +43,11 @@ enum gigglebotWhichUnitSystem {
 
 enum gigglebotWhichSpeed {
     //% block="slowest"
-    Slowest = 25,
+    Slowest = 30,
     //% block="slower"
-    Slower = 35,
+    Slower = 45,
     //% block="normal"
-    Normal = 50,
+    Normal = 60,
     //% block="faster"
     Faster = 75,
     //% block="fastest"
@@ -142,7 +142,7 @@ namespace gigglebot {
      * Load pxt-giggle for radio and neopixels
      */
     let ADDR = 0x04
-    let line_follower_threshold = 300
+    let line_follower_threshold = 175
     let defaultMotorPower = 50;
     let trimLeft = 0
     let trimRight = 0
@@ -191,23 +191,24 @@ namespace gigglebot {
      */
     export function followThinLine() {
         let all_black = false
-        gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
+        driveStraight(gigglebotWhichDriveDirection.Forward)
         while (!(all_black)) {
-            lineSensors = gigglebot.lineSensorsRaw()
-            if (gigglebot.lineTest(gigglebotLineColor.Black)) { 
+            lineSensors = lineSensorsRaw()
+            if (lineTest(gigglebotLineColor.Black)) { 
                 // We're done
                 all_black = true
-                gigglebot.stop()
+                stop()
             } else if (gigglebot.lineTest(gigglebotLineColor.White)) {
                 // Line is between the two sensors, hopefully
-                gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
+                driveStraight(gigglebotWhichDriveDirection.Forward)
             } else if (lineSensors[0] < line_follower_threshold) {
+                // black is detected on left sensor only, therefore white on rightx             sensor
                 // correct towards the right
-                gigglebot.stop()
+                stop()
                 motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
             } else if (lineSensors[1] < line_follower_threshold) {
                 // correct towards the let
-                gigglebot.stop()
+                stop()
                 motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
             } else {
                 // this should never happen
@@ -221,20 +222,24 @@ namespace gigglebot {
      */
     function followThickLine() {
         let all_white = false
-        gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
+        driveStraight(gigglebotWhichDriveDirection.Forward)
         while (!(all_white)) {
             lineSensors = lineSensorsRaw()
-            if (gigglebot.lineTest(gigglebotLineColor.White)) {
+            if (lineTest(gigglebotLineColor.White)) {
                 all_white = true
                 stop()
-            } else if (gigglebot.lineTest(gigglebotLineColor.Black)) {
+            } else if (lineTest(gigglebotLineColor.Black)) {
                 driveStraight(gigglebotWhichDriveDirection.Forward)
-            } else if (lineSensors[0] > line_follower_threshold) {
+            } else if (lineSensors[0] < line_follower_threshold) {
+                /* left sensor reads black, right sensor reads white */
                 stop()
+                /* motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5) */
                 turn(gigglebotWhichTurnDirection.Right)
-            } else if (lineSensors[1] > line_follower_threshold) {
+            } else if (lineSensors[1] < line_follower_threshold) {
+                /* right sensor reads black, left sensor reads white */
                 stop()
                 turn(gigglebotWhichTurnDirection.Left)
+                /* motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5) */
             } else {
             }
         }
