@@ -134,12 +134,15 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
+//% groups='["other", "LineFollower", "LightSensors", "DistanceSensor"]'
 namespace gigglebot {
     /**
+     * Basic drive and sensor functionalities for GiggleBot
+     * No radio, no neopixels functionalities here in order to be compatible with Bluetooth.
+     * Load pxt-giggle for radio and neopixels
      */
-
     let ADDR = 0x04
-    let LINE_FOLLOWER_THRESHOLD = 100
+    let line_follower_threshold = 300
     let defaultMotorPower = 50;
     let trimLeft = 0
     let trimRight = 0
@@ -198,11 +201,11 @@ namespace gigglebot {
             } else if (gigglebot.lineTest(gigglebotLineColor.White)) {
                 // Line is between the two sensors, hopefully
                 gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
-            } else if (lineSensors[0] < LINE_FOLLOWER_THRESHOLD) {
+            } else if (lineSensors[0] < line_follower_threshold) {
                 // correct towards the right
                 gigglebot.stop()
                 motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
-            } else if (lineSensors[1] < LINE_FOLLOWER_THRESHOLD) {
+            } else if (lineSensors[1] < line_follower_threshold) {
                 // correct towards the let
                 gigglebot.stop()
                 motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
@@ -226,10 +229,10 @@ namespace gigglebot {
                 stop()
             } else if (gigglebot.lineTest(gigglebotLineColor.Black)) {
                 driveStraight(gigglebotWhichDriveDirection.Forward)
-            } else if (lineSensors[0] > LINE_FOLLOWER_THRESHOLD) {
+            } else if (lineSensors[0] > line_follower_threshold) {
                 stop()
                 turn(gigglebotWhichTurnDirection.Right)
-            } else if (lineSensors[1] > LINE_FOLLOWER_THRESHOLD) {
+            } else if (lineSensors[1] > line_follower_threshold) {
                 stop()
                 turn(gigglebotWhichTurnDirection.Left)
             } else {
@@ -265,7 +268,6 @@ namespace gigglebot {
      */
     //% blockId="gigglebotDriveMillisec" block="drive %dir|for %delay|ms"
     //% weight=100
-    //% group=motors
     //% delay.min=0
     export function driveMillisec(dir: gigglebotWhichDriveDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -281,7 +283,6 @@ namespace gigglebot {
      */
     //% blockId="gigglebotTurnMillisec" block="turn %turn_dir|for %delay|ms"
     //% weight=99
-    //% group=motors
     //% delay.min=0
     export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -297,7 +298,6 @@ namespace gigglebot {
      */
     //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
     //% weight=98
-    //% group=motors
     //% delay.min=0
     export function SpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -317,7 +317,6 @@ namespace gigglebot {
     //% blockId="gigglebotSteerMillisec" block="steer %percent| towards the %dir| for %delay| ms"
     //% percent.min=0 percent.max=100
     //% weight=97
-    //% group=motors
     export function steerMillisec(percent: number, dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
         if (percent < 0) percent = 0
@@ -333,7 +332,6 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_drive_straight" block="drive %dir"
     //% weight=89
-    //% group=motors
     export function driveStraight(dir: gigglebotWhichDriveDirection) {
         let dir_factor = 1
         if (dir == gigglebotWhichDriveDirection.Backward) {
@@ -350,7 +348,6 @@ namespace gigglebot {
      */
     //% blockId="gigglebotTurn" block="turn %turn_dir"
     //% weight=88
-    //% group=motors
     export function turn(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
             motorPowerAssignBoth(0, motorPowerRight)
@@ -366,7 +363,6 @@ namespace gigglebot {
      */
     //% blockId="gigglebotSpin" block="spin %turn_dir"
     //% weight=87
-    //% group=motors
     export function gigglebotSpin(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
             motorPowerAssignBoth(-1 * motorPowerLeft, motorPowerRight)
@@ -386,7 +382,6 @@ namespace gigglebot {
     //% blockId="gigglebotSteer" block="steer %percent| towards the %dir"
     //% percent.min=0 percent.max=100
     //% weight=86
-    //% group=motors
     export function steer(percent: number, dir: gigglebotWhichTurnDirection) {
         percent = Math.min(Math.max(percent, 0), 100)
         let correctedMotorPowerLeft = motorPowerLeft
@@ -406,7 +401,6 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_stop" block="stop"
     //% weight=70
-    //% group=motors
     export function stop() {
         motorPowerAssign(gigglebotWhichMotor.Both, 0)
     }
@@ -422,7 +416,6 @@ namespace gigglebot {
     //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
     //% speed.min=-100 speed.max=100
     //% weight=60
-    //% group=motors
     export function setSpeed(motor: gigglebotWhichMotor, speed: gigglebotWhichSpeed) {
         speed = Math.min(Math.max(speed, -100), 100)
         if (motor != gigglebotWhichMotor.Left) {
@@ -441,9 +434,18 @@ namespace gigglebot {
         motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
-  ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
     /////////// LINE FOLLOWER BLOCKS
     ///////////////////////////////////////////////////////////////////////
+
+    /** 
+     * A javascript method to change the line follower threshold. 
+     * Not exposed as a block
+     */
+    export function setLineFollowerThreshold(newThreshold: number) {
+        line_follower_threshold = newThreshold
+    }
+
     /**
      * A thin black line would fall between the two sensors. The gigglebot will stop when both sensors are reading black.
      * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
@@ -461,6 +463,7 @@ namespace gigglebot {
         }
     }
 
+
     /**
      * Will return true if the whole line sensor is reading either black or white.
      * @param color: black or white
@@ -471,10 +474,10 @@ namespace gigglebot {
     export function lineTest(color: gigglebotLineColor): boolean {
         lineSensorsRaw()
         for (let _i = 0; _i < lineSensors.length; _i++) {
-            if (color == gigglebotLineColor.Black && lineSensors[_i] > LINE_FOLLOWER_THRESHOLD) {
+            if (color == gigglebotLineColor.Black && lineSensors[_i] > line_follower_threshold) {
                 return false
             }
-            if (color == gigglebotLineColor.White && lineSensors[_i] < LINE_FOLLOWER_THRESHOLD) {
+            if (color == gigglebotLineColor.White && lineSensors[_i] < line_follower_threshold) {
                 return false
             }
         }
@@ -627,7 +630,7 @@ namespace gigglebot {
      * @param trim_value: a correction value between 0 and 100, but most likely below 10
      */
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
-    //% group=motors
+    
     //% weight=100
     //% advanced=true
     export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
@@ -650,7 +653,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
-    //% group=motors
+    
     //% weight=90
     export function motorPowerAssign(motor: gigglebotWhichMotor, power: number) {
         let buf = pins.createBuffer(3)
@@ -680,7 +683,7 @@ namespace gigglebot {
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
     //% weight=90
-    //% group=motors
+    
     export function motorPowerAssignBoth(left_power: number, right_power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
