@@ -134,7 +134,7 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "LineFollower", "LightSensors", "DistanceSensor"]'
+//% groups='["other", "Servo", "LineFollower", "LightSensors", "DistanceSensor"]'
 namespace gigglebot {
     /**
      * Basic drive and sensor functionalities for GiggleBot
@@ -603,7 +603,6 @@ namespace gigglebot {
     /////////// SERVO BLOCKS
 
     //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
-    //% advanced=true
     //% group=Servo
     //% degree.min=5 degree.max=175
     export function servoMove(which: gigglebotServoAction, degree: number) {
