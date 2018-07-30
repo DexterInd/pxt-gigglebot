@@ -265,6 +265,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebotDriveMillisec" block="drive %dir|for %delay|ms"
     //% weight=100
+    //% group=motors
     //% delay.min=0
     export function driveMillisec(dir: gigglebotWhichDriveDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -280,6 +281,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebotTurnMillisec" block="turn %turn_dir|for %delay|ms"
     //% weight=99
+    //% group=motors
     //% delay.min=0
     export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -295,6 +297,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
     //% weight=98
+    //% group=motors
     //% delay.min=0
     export function SpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
@@ -314,6 +317,7 @@ namespace gigglebot {
     //% blockId="gigglebotSteerMillisec" block="steer %percent| towards the %dir| for %delay| ms"
     //% percent.min=0 percent.max=100
     //% weight=97
+    //% group=motors
     export function steerMillisec(percent: number, dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
         if (percent < 0) percent = 0
@@ -329,6 +333,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_drive_straight" block="drive %dir"
     //% weight=89
+    //% group=motors
     export function driveStraight(dir: gigglebotWhichDriveDirection) {
         let dir_factor = 1
         if (dir == gigglebotWhichDriveDirection.Backward) {
@@ -345,6 +350,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebotTurn" block="turn %turn_dir"
     //% weight=88
+    //% group=motors
     export function turn(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
             motorPowerAssignBoth(0, motorPowerRight)
@@ -360,6 +366,7 @@ namespace gigglebot {
      */
     //% blockId="gigglebotSpin" block="spin %turn_dir"
     //% weight=87
+    //% group=motors
     export function gigglebotSpin(turn_dir: gigglebotWhichTurnDirection) {
         if (turn_dir == gigglebotWhichTurnDirection.Left) {
             motorPowerAssignBoth(-1 * motorPowerLeft, motorPowerRight)
@@ -379,6 +386,7 @@ namespace gigglebot {
     //% blockId="gigglebotSteer" block="steer %percent| towards the %dir"
     //% percent.min=0 percent.max=100
     //% weight=86
+    //% group=motors
     export function steer(percent: number, dir: gigglebotWhichTurnDirection) {
         percent = Math.min(Math.max(percent, 0), 100)
         let correctedMotorPowerLeft = motorPowerLeft
@@ -398,6 +406,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_stop" block="stop"
     //% weight=70
+    //% group=motors
     export function stop() {
         motorPowerAssign(gigglebotWhichMotor.Both, 0)
     }
@@ -413,6 +422,7 @@ namespace gigglebot {
     //% blockId="gigglebot_set_speed" block="set %motor | speed to %speed"
     //% speed.min=-100 speed.max=100
     //% weight=60
+    //% group=motors
     export function setSpeed(motor: gigglebotWhichMotor, speed: gigglebotWhichSpeed) {
         speed = Math.min(Math.max(speed, -100), 100)
         if (motor != gigglebotWhichMotor.Left) {
@@ -591,6 +601,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
     //% advanced=true
+    //% group=Servo
     //% degree.min=5 degree.max=175
     export function servoMove(which: gigglebotServoAction, degree: number) {
         if (which == gigglebotServoAction.Right) {
@@ -616,6 +627,8 @@ namespace gigglebot {
      * @param trim_value: a correction value between 0 and 100, but most likely below 10
      */
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
+    //% group=motors
+    //% weight=100
     //% advanced=true
     export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
         if (trim_value < 0) trim_value = 0
@@ -637,6 +650,8 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
+    //% group=motors
+    //% weight=90
     export function motorPowerAssign(motor: gigglebotWhichMotor, power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWER)
@@ -664,6 +679,8 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
+    //% weight=90
+    //% group=motors
     export function motorPowerAssignBoth(left_power: number, right_power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
@@ -672,18 +689,10 @@ namespace gigglebot {
         pins.i2cWriteBuffer(ADDR, buf, false);
     }
 
-    /**
-     * Displays the current battery voltage. Anything lower than 3.4 is too low to run the motors
-     */
-    //% blockId="gigglebot_show_voltage" block="show battery voltage (mv)"
-    //% advanced=true
-    export function voltageShow() {
-        let voltage = voltageBattery()
-        basic.showNumber(voltage)
-    }
-
     //% blockId="gigglebot_get_firmware" block="firmware version number"
     //% advanced=true
+    //% weight=10
+    //% group=Firmware
     export function firmwareVersion(): number {
         /**
          * returns the firmware version that is installed.
@@ -695,8 +704,20 @@ namespace gigglebot {
         return val.getNumber(NumberFormat.UInt16BE, 0);
     }
 
+    /**
+     * Displays the current battery voltage. Anything lower than 3.4 is too low to run the motors
+     */
+    //% blockId="gigglebot_show_voltage" block="show battery voltage (mv)"
+    //% advanced=true
+    //% group=Voltage
+    export function voltageShow() {
+        let voltage = voltageBattery()
+        basic.showNumber(voltage)
+    }
+
     //% blockId="gigglebot_get_voltage" block="battery voltage (mv)"
     //% advanced=true
+    //% group=Voltage
     export function voltageBattery(): number {
         /**
          * Returns the voltage level of the batteries.
@@ -713,6 +734,7 @@ namespace gigglebot {
     */
     //% blockId="gigglebot_read_raw_line_sensors" block="raw line sensors (x2)"
     //% advanced=true
+    //% group=OnBoardSensors
     export function lineSensorsRaw(): number[] {
         let buf = pins.createBuffer(1)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LINE_SENSORS)
@@ -729,6 +751,7 @@ namespace gigglebot {
 
     //% blockId="gigglebot_read_raw_light_sensors" block="raw light sensors (x2)"
     //% advanced=true
+    //% group=OnBoardSensors
     export function lightSensorsRaw(): number[] {
         let buf = pins.createBuffer(1)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LIGHT_SENSORS)
