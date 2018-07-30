@@ -134,7 +134,7 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "Servo", "LineFollower", "LightSensors", "DistanceSensor"]'
+//% groups='["other", "Servo", "LineFollower", "LightSensors", "DistanceSensor","OnBoardSensors", "Voltage", "Firmware"]'
 namespace gigglebot {
     /**
      * Basic drive and sensor functionalities for GiggleBot
@@ -629,7 +629,6 @@ namespace gigglebot {
      * @param trim_value: a correction value between 0 and 100, but most likely below 10
      */
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
-    
     //% weight=100
     //% advanced=true
     export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
@@ -652,7 +651,6 @@ namespace gigglebot {
      */
     //% blockId="gigglebot_set_motor" block="set power on %motor| to | %power"
     //% advanced=true
-    
     //% weight=90
     export function motorPowerAssign(motor: gigglebotWhichMotor, power: number) {
         let buf = pins.createBuffer(3)
@@ -682,7 +680,6 @@ namespace gigglebot {
     //% blockId="gigglebot_set_motors" block="set left power to %left_power|and right to | %right_power"
     //% advanced=true
     //% weight=90
-    
     export function motorPowerAssignBoth(left_power: number, right_power: number) {
         let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
