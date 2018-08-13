@@ -81,34 +81,6 @@ enum gigglebotLineColor {
     White
 }
 
-enum gigglebotWhichEye {
-    //% block="both eyes"
-    Both,
-    //% block="left eye"
-    Left,
-    //% block="right eye"
-    Right
-}
-
-enum gigglebotEyeAction {
-    //% block="open"
-    Open,
-    //% block="close"
-    Close
-}
-
-enum gigglebotGigglePixels {
-    Right,
-    Left,
-    SmileOne,
-    SmileTwo,
-    SmileThree,
-    SmileFour,
-    SmileFive,
-    SmileSix,
-    SmileSeven
-}
-
 enum gigglebotServoAction {
     //% block="right"
     Right,
