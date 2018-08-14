@@ -81,34 +81,6 @@ enum gigglebotLineColor {
     White
 }
 
-enum gigglebotWhichEye {
-    //% block="both eyes"
-    Both,
-    //% block="left eye"
-    Left,
-    //% block="right eye"
-    Right
-}
-
-enum gigglebotEyeAction {
-    //% block="open"
-    Open,
-    //% block="close"
-    Close
-}
-
-enum gigglebotGigglePixels {
-    Right,
-    Left,
-    SmileOne,
-    SmileTwo,
-    SmileThree,
-    SmileFour,
-    SmileFive,
-    SmileSix,
-    SmileSeven
-}
-
 enum gigglebotServoAction {
     //% block="right"
     Right,
@@ -151,6 +123,8 @@ namespace gigglebot {
     let distanceSensorInitDone = false;
     let lineSensors = [0, 0]
     let lightSensors = [0, 0]
+    // turn motor power off
+    stop()
 
 
     /**
@@ -413,6 +387,7 @@ namespace gigglebot {
     /**
      * You can set the speed for each individual motor or both together. The higher the speed the less control the robot has.
      * You may need to correct the robot (see block in "more..." section).  A faster robot needs more correction than a slower one.
+     * Note that any drive correction done previously gets applied here.
      * If you want to follow a line,  it will work best at a lower speed.
      * Actual speed is dependent on the freshness of the batteries.
      * @param motor: left, right or both motors
@@ -422,7 +397,8 @@ namespace gigglebot {
     //% speed.min=-100 speed.max=100
     //% weight=60
     export function setSpeed(motor: gigglebotWhichMotor, speed: gigglebotWhichSpeed) {
-        speed = Math.min(Math.max(speed, -100), 100)
+        // no need to check as the speed value is taken from a pulldown
+        // speed = Math.min(Math.max(speed, -100), 100)
         if (motor != gigglebotWhichMotor.Left) {
             if (speed > 0)
                 motorPowerRight = speed - trimRight;
@@ -436,7 +412,7 @@ namespace gigglebot {
             else
             motorPowerLeft = speed + trimLeft;
         }
-        motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
+        // motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -640,11 +616,11 @@ namespace gigglebot {
         if (trim_value < 0) trim_value = 0
         if (dir == gigglebotWhichTurnDirection.Left) {
             trimLeft = trim_value
-            motorPowerLeft = defaultMotorPower - trimLeft
+            motorPowerLeft = motorPowerLeft - trimLeft
         }
         if (dir == gigglebotWhichTurnDirection.Right) {
             trimRight = trim_value
-            motorPowerRight = defaultMotorPower - trimRight
+            motorPowerRight = motorPowerRight - trimRight
         }
     }
 
