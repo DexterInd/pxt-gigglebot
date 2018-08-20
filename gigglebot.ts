@@ -10,6 +10,7 @@ enum gigglebotWhichUniqueMotor {
     //% block="left motor"
     Left
 }
+
 enum gigglebotWhichMotor {
     //% block="both motors"
     Both,
@@ -115,11 +116,11 @@ namespace gigglebot {
      */
     let ADDR = 0x04
     let line_follower_threshold = 175
-    let defaultMotorPower = 50;
+    let currentMotorPower = gigglebotWhichSpeed.Normal;
     let trimLeft = 0
     let trimRight = 0
-    let motorPowerLeft = (defaultMotorPower - trimLeft)
-    let motorPowerRight = (defaultMotorPower - trimRight)
+    let motorPowerLeft = currentMotorPower
+    let motorPowerRight = currentMotorPower
     let distanceSensorInitDone = false;
     let lineSensors = [0, 0]
     let lightSensors = [0, 0]
@@ -397,22 +398,26 @@ namespace gigglebot {
     //% speed.min=-100 speed.max=100
     //% weight=60
     export function setSpeed(motor: gigglebotWhichMotor, speed: gigglebotWhichSpeed) {
-        // no need to check as the speed value is taken from a pulldown
-        // speed = Math.min(Math.max(speed, -100), 100)
-        if (motor != gigglebotWhichMotor.Left) {
-            if (speed > 0)
-                motorPowerRight = speed - trimRight;
-            else 
-                motorPowerRight = speed + trimRight;
-            
+        speed = Math.min(Math.max(speed, -100), 100)
+        currentMotorPower = speed
+        motorPowerLeft = currentMotorPower
+        motorPowerRight = currentMotorPower
+
+        // apply trim 
+        if (trimRight != 0 && motor != gigglebotWhichMotor.Left) {
+            if (speed > 0) {
+                motorPowerRight = currentMotorPower - (trimRight * currentMotorPower / 100);
+            } else {
+                motorPowerRight = currentMotorPower + (trimRight * currentMotorPower / 100);
+            }
         }
-        if (motor != gigglebotWhichMotor.Right) {
-            if (speed > 0)
-                motorPowerLeft = speed - trimLeft;
-            else
-            motorPowerLeft = speed + trimLeft;
+        if (trimLeft != 0 && motor != gigglebotWhichMotor.Right) {
+            if (speed > 0) {
+                motorPowerLeft = currentMotorPower - (trimLeft * currentMotorPower / 100);
+            } else {
+                motorPowerLeft = currentMotorPower + (trimLeft * currentMotorPower / 100);
+            }
         }
-        // motorPowerAssignBoth(motorPowerLeft, motorPowerRight)
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -613,14 +618,26 @@ namespace gigglebot {
     //% weight=100
     //% advanced=true
     export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
-        if (trim_value < 0) trim_value = 0
+        if (trim_value < 0) { 
+            trim_value = 0
+        }
         if (dir == gigglebotWhichTurnDirection.Left) {
             trimLeft = trim_value
-            motorPowerLeft = motorPowerLeft - trimLeft
+            trimRight = 0
         }
         if (dir == gigglebotWhichTurnDirection.Right) {
             trimRight = trim_value
-            motorPowerRight = motorPowerRight - trimRight
+            trimLeft = 0
+        }
+        if (motorPowerLeft > 0){
+            motorPowerLeft = currentMotorPower - (trimLeft * currentMotorPower / 100)
+        } else {
+            motorPowerLeft = currentMotorPower + (trimLeft * currentMotorPower / 100)
+        }
+        if (motorPowerRight > 0) {
+            motorPowerRight = currentMotorPower - (trimRight * currentMotorPower / 100)
+        } else {
+            motorPowerRight = currentMotorPower + (trimRight * currentMotorPower / 100)
         }
     }
 
