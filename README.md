@@ -112,13 +112,13 @@ basic.forever(() => {
 ```
 
 
-## SERVO MOTORS
+## SERVO MOTORS  #servomove
 The GiggleBot comes with two servo connectors. What will you do with them? You can control them one by one, both together (in synchro), or both mirrored, depending on how they are positioned on the robot.
 ```
 gigglebot.servoMove(gigglebotServoAction.Right, 90)
 ```
 
-### Using the distance sensor
+### Using the distance sensor #distancesensortestforobstacle #distancesensorreadrangecontinuous
 
 You can add a distance sensor to the robot. This distance sensor is not ultrasonic, but laser-based. 
 
