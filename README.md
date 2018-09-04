@@ -4,15 +4,20 @@ For more information: https://www.gigglebot.io/pages/program-the-gigglebot-robot
 
 ## Example Usage
 
-### Driving around
+### Driving around  #driveMillisec
 To drive forward and back for 2 seconds each:
 
-![Makecode for forward and back](https://raw.githubusercontent.com/DexterInd/pxt-giggle/master/images/forward_backward_2sec.png)
+'''
+    input.onButtonPressed(Button.A, () => {
+    gigglebot.driveMillisec(gigglebotWhichDriveDirection.Forward, 2000)
+    gigglebot.driveMillisec(gigglebotWhichDriveDirection.Backward, 2000)
+})
+'''
 
 ### Turning, Spinning and Steering
-Turning happens around a wheel, it's a nice way of going around an obstacle.
-Spinning happens on the spot, useful when drawing
-Steering is up to you, you can use it to orbit around a "sun"
+#### Turning happens around a wheel, it's a nice way of going around an obstacle. #turnMillisec
+#### Spinning happens on the spot, useful when drawing. #spinMillisec
+#### Steering is up to you, you can use it to orbit around a "sun". #steerMillisec
 
 ![Turning, Spinning and Steering](https://raw.githubusercontent.com/DexterInd/pxt-giggle/master/images/turning_spinning_steering.png)
 
