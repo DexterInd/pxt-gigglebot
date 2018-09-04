@@ -107,7 +107,7 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "Servo", "LineFollower", "LightSensors", "DistanceSensor","OnBoardSensors", "Voltage", "Firmware"]'
+//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor","OnBoardSensors", "Voltage", "Firmware"]'
 namespace gigglebot {
     /**
      * Basic drive and sensor functionalities for GiggleBot
@@ -279,7 +279,7 @@ namespace gigglebot {
     //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
     //% weight=98
     //% delay.min=0
-    export function SpinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
+    export function spinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
         if (delay < 0) delay = 0
         gigglebotSpin(turn_dir)
         basic.pause(delay)
