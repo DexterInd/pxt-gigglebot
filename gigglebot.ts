@@ -69,10 +69,10 @@ enum gigglebotI2CCommands {
 }
 
 enum gigglebotLineType {
-    //% block="thin"
-    Thin,
     //% block="thick"
-    Thick
+    Thick,
+    //% block="thin"
+    Thin
 }
 
 enum gigglebotLineColor {
