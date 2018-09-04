@@ -107,7 +107,7 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "Servo", "LineFollower", "LightSensors", "DistanceSensor","OnBoardSensors", "Voltage", "Firmware"]'
+//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor","OnBoardSensors", "Voltage", "Firmware"]'
 namespace gigglebot {
     /**
      * Basic drive and sensor functionalities for GiggleBot
