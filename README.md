@@ -1,11 +1,7 @@
 # GiggleBot by Dexter Industries
 This library provides blocks to control the Gigglebot, its motors, neopixels, sensors and servos.
 For more information: https://www.gigglebot.io/pages/program-the-gigglebot-robot
-```packages
-lights=github:DexterInd/pxt-giggle#master,
-remote=github:DexterInd/pxt-giggle#master,
-gigglebot=github:DexterInd/pxt-gigglebot#master
-```
+
 ## Example Usage
 
 ### Driving around  #driveMillisec
@@ -168,3 +164,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## Code of Conduct
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+```packages
+lights=github:DexterInd/pxt-giggle#master
+remote=github:DexterInd/pxt-giggle#master
+gigglebot=github:DexterInd/pxt-gigglebot#master
+```
