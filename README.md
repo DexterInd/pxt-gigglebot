@@ -25,7 +25,7 @@ gigglebot.turnMillisec(gigglebotWhichTurnDirection.Right, 1000)
 Using the spin block is useful when drawing because the turns will be around the pen, instead of around a wheel. That way, you can get good corners when drawing.
 
 ```blocks
-gigglebot.SpinMillisec(gigglebotWhichTurnDirection.Left, 1000)
+gigglebot.spinMillisec(gigglebotWhichTurnDirection.Left, 1000)
 ```
 
 #### Steering is up to you, you can use it to orbit around a "sun". #steerMillisec
