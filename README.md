@@ -1,9 +1,10 @@
 # GiggleBot by Dexter Industries
 This library provides blocks to control the Gigglebot, its motors, neopixels, sensors and servos.
 For more information: https://www.gigglebot.io/pages/program-the-gigglebot-robot
-```package
-dexterind/pxt-giggle,
-dexterind/pxt-gigglebot
+```packages
+lights=github:DexterInd/pxt-giggle#master,
+remote=github:DexterInd/pxt-giggle#master,
+gigglebot=github:DexterInd/pxt-gigglebot#master
 ```
 ## Example Usage
 
