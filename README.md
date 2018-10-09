@@ -94,10 +94,13 @@ basic.forever(() => {
 
 ### Following a light #lightfollow
 
-The GiggleBot comes with two light sensors that allows it to follow a spotlight, a little bit like a cat would.  Shining a flashlight onto one eye will get the GiggleBot to turn in that direction.
+The GiggleBot comes with two light sensors that allows it to follow a spotlight, a little bit like a cat would.  Shining a flashlight onto one eye will get the GiggleBot to turn in that direction. You need to put this block in a loop. You may use a forever loop or one where you control the end condition. Make sure you stop the robot when exiting the loop!
 ```blocks
 input.onButtonPressed(Button.A, () => {
-    gigglebot.lightFollow()
+    while (!(input.buttonIsPressed(Button.B))) {
+        gigglebot.lightFollow()
+    }
+    gigglebot.stop()
 })
 ```
 
