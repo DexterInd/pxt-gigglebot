@@ -29,7 +29,7 @@ gigglebot.spinMillisec(gigglebotWhichTurnDirection.Left, 1000)
 ```
 
 #### Steering is up to you, you can use it to orbit around a "sun". #steerMillisec
-With steering you control how much turning each wheel can do. In this example, the robot will halfway to the right, doing a curve around an object. The first number is percent-based. With a value of 0, the robot will not turn at all. With a value of 100, you will get the same behavior as the turn block.
+With steering you control how much turning each wheel can do. In this example, the robot will turn halfway to the right, doing a curve around an object. The first number is percent-based. With a value of 0, the robot will not turn at all. With a value of 100, you will get the same behavior as the turn block.
 ```blocks
 gigglebot.steerMillisec(50, gigglebotWhichTurnDirection.Right, 1000)
 ```
@@ -94,10 +94,13 @@ basic.forever(() => {
 
 ### Following a light #lightfollow
 
-The GiggleBot comes with two light sensors that allows it to follow a spotlight, a little bit like a cat would.  Shining a flashlight onto one eye will get the GiggleBot to turn in that direction.
+The GiggleBot comes with two light sensors that allows it to follow a spotlight, a little bit like a cat would.  Shining a flashlight onto one eye will get the GiggleBot to turn in that direction. You need to put this block in a loop. You may use a forever loop or one where you control the end condition. Make sure you stop the robot when exiting the loop!
 ```blocks
 input.onButtonPressed(Button.A, () => {
-    gigglebot.lightFollow()
+    while (!(input.buttonIsPressed(Button.B))) {
+        gigglebot.lightFollow()
+    }
+    gigglebot.stop()
 })
 ```
 

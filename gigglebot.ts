@@ -493,18 +493,35 @@ namespace gigglebot {
     //% group=LightSensors
     //% weight=40
     export function lightFollow() {
-        let diff = 0
-        let current_lights = lightSensorsRaw()
-        diff = Math.abs((current_lights[0] - current_lights[1])) / 10;
-        if (current_lights[0] > current_lights[1]) {
+        let diff = 20
+        let current_lights = gigglebot.lightSensorsRaw()
+        // serial.writeNumbers(current_lights)
+        if (current_lights[0] < 10 && current_lights[1] < 10) {
+        }
+        else if (current_lights[0] > current_lights[1] + diff) {
             // it's brighter to the right
-            motorPowerAssignBoth(motorPowerLeft, motorPowerRight - diff)
-        }
-        else {
+            // lights.smileShow(NeoPixelColors.Black)
+            // lights.whichEye(gigglebotWhichEye.Right).setPixelColor(0, neopixel.colors(NeoPixelColors.Yellow))
+            // lights.whichEye(gigglebotWhichEye.Left).setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
+            // lights.whichEye(gigglebotWhichEye.Both).show()
+            gigglebot.turn(gigglebotWhichTurnDirection.Right)
+        } else if (current_lights[1] > current_lights[0] + diff) {
             // it's brighter to the left
-            motorPowerAssignBoth(motorPowerLeft - diff, motorPowerRight)
+            // lights.smileShow(NeoPixelColors.Black)
+            // lights.whichEye(gigglebotWhichEye.Left).setPixelColor(0, neopixel.colors(NeoPixelColors.Yellow))
+            // lights.whichEye(gigglebotWhichEye.Right).setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
+            // lights.whichEye(gigglebotWhichEye.Both).show()
+            gigglebot.turn(gigglebotWhichTurnDirection.Left)
+        } else {
+            // lights.whichEye(gigglebotWhichEye.Left).setPixelColor(0, neopixel.colors(NeoPixelColors.Violet))
+            // lights.whichEye(gigglebotWhichEye.Right).setPixelColor(0, neopixel.colors(NeoPixelColors.Violet))
+            // lights.whichEye(gigglebotWhichEye.Both).show()
+            // lights.smileRainbow()
+            gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
         }
+        basic.pause(100)
     }
+
 
     /**
     * Reads left or right light sensor. 
