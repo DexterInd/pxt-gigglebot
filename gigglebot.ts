@@ -367,11 +367,11 @@ namespace gigglebot {
         let correctedMotorPowerLeft = motorPowerLeft
         let correctedMotorPowerRight = motorPowerRight
         if (dir == gigglebotWhichTurnDirection.Left) {
-            correctedMotorPowerLeft = motorPowerLeft - (motorPowerLeft * percent) / 100
-            correctedMotorPowerRight = motorPowerRight + (motorPowerRight * percent) / 100
+            correctedMotorPowerLeft = Math.idiv(motorPowerLeft - (motorPowerLeft * percent), 100)
+            correctedMotorPowerRight = Math.idiv(motorPowerRight + (motorPowerRight * percent), 100)
         } else {
-            correctedMotorPowerLeft = motorPowerLeft + (motorPowerLeft * percent) / 100
-            correctedMotorPowerRight = motorPowerRight - (motorPowerRight * percent) / 100
+            correctedMotorPowerLeft = Math.idiv(motorPowerLeft + (motorPowerLeft * percent), 100)
+            correctedMotorPowerRight = Math.idiv(motorPowerRight - (motorPowerRight * percent), 100)
         }
         motorPowerAssignBoth(correctedMotorPowerLeft, correctedMotorPowerRight)
     }
@@ -406,16 +406,16 @@ namespace gigglebot {
         // apply trim 
         if (trimRight != 0 && motor != gigglebotWhichMotor.Left) {
             if (speed > 0) {
-                motorPowerRight = currentMotorPower - (trimRight * currentMotorPower / 100);
+                motorPowerRight = currentMotorPower - Math.idiv(trimRight * currentMotorPower, 100);
             } else {
-                motorPowerRight = currentMotorPower + (trimRight * currentMotorPower / 100);
+                motorPowerRight = currentMotorPower + Math.idiv(trimRight * currentMotorPower, 100);
             }
         }
         if (trimLeft != 0 && motor != gigglebotWhichMotor.Right) {
             if (speed > 0) {
-                motorPowerLeft = currentMotorPower - (trimLeft * currentMotorPower / 100);
+                motorPowerLeft = currentMotorPower - Math.idiv(trimLeft * currentMotorPower, 100);
             } else {
-                motorPowerLeft = currentMotorPower + (trimLeft * currentMotorPower / 100);
+                motorPowerLeft = currentMotorPower + Math.idiv(trimLeft * currentMotorPower, 100);
             }
         }
     }
@@ -495,28 +495,15 @@ namespace gigglebot {
     export function lightFollow() {
         let diff = 20
         let current_lights = gigglebot.lightSensorsRaw()
-        // serial.writeNumbers(current_lights)
         if (current_lights[0] < 10 && current_lights[1] < 10) {
         }
         else if (current_lights[0] > current_lights[1] + diff) {
             // it's brighter to the right
-            // lights.smileShow(NeoPixelColors.Black)
-            // lights.whichEye(gigglebotWhichEye.Right).setPixelColor(0, neopixel.colors(NeoPixelColors.Yellow))
-            // lights.whichEye(gigglebotWhichEye.Left).setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
-            // lights.whichEye(gigglebotWhichEye.Both).show()
             gigglebot.turn(gigglebotWhichTurnDirection.Right)
         } else if (current_lights[1] > current_lights[0] + diff) {
             // it's brighter to the left
-            // lights.smileShow(NeoPixelColors.Black)
-            // lights.whichEye(gigglebotWhichEye.Left).setPixelColor(0, neopixel.colors(NeoPixelColors.Yellow))
-            // lights.whichEye(gigglebotWhichEye.Right).setPixelColor(0, neopixel.colors(NeoPixelColors.Black))
-            // lights.whichEye(gigglebotWhichEye.Both).show()
             gigglebot.turn(gigglebotWhichTurnDirection.Left)
         } else {
-            // lights.whichEye(gigglebotWhichEye.Left).setPixelColor(0, neopixel.colors(NeoPixelColors.Violet))
-            // lights.whichEye(gigglebotWhichEye.Right).setPixelColor(0, neopixel.colors(NeoPixelColors.Violet))
-            // lights.whichEye(gigglebotWhichEye.Both).show()
-            // lights.smileRainbow()
             gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
         }
         basic.pause(100)
@@ -647,14 +634,14 @@ namespace gigglebot {
             trimLeft = 0
         }
         if (motorPowerLeft > 0){
-            motorPowerLeft = currentMotorPower - (trimLeft * currentMotorPower / 100)
+            motorPowerLeft = currentMotorPower - Math.idiv(trimLeft * currentMotorPower, 100)
         } else {
-            motorPowerLeft = currentMotorPower + (trimLeft * currentMotorPower / 100)
+            motorPowerLeft = currentMotorPower + Math.idiv(trimLeft * currentMotorPower, 100)
         }
         if (motorPowerRight > 0) {
-            motorPowerRight = currentMotorPower - (trimRight * currentMotorPower / 100)
+            motorPowerRight = currentMotorPower - Math.idiv(trimRight * currentMotorPower, 100)
         } else {
-            motorPowerRight = currentMotorPower + (trimRight * currentMotorPower / 100)
+            motorPowerRight = currentMotorPower + Math.idiv(trimRight * currentMotorPower, 100)
         }
     }
 
