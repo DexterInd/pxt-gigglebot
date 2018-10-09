@@ -367,11 +367,11 @@ namespace gigglebot {
         let correctedMotorPowerLeft = motorPowerLeft
         let correctedMotorPowerRight = motorPowerRight
         if (dir == gigglebotWhichTurnDirection.Left) {
-            correctedMotorPowerLeft = Math.idiv(motorPowerLeft - (motorPowerLeft * percent), 100)
-            correctedMotorPowerRight = Math.idiv(motorPowerRight + (motorPowerRight * percent), 100)
+            correctedMotorPowerLeft = motorPowerLeft - Math.idiv(motorPowerLeft * percent, 100)
+            correctedMotorPowerRight = motorPowerRight + Math.idiv(motorPowerRight * percent, 100)
         } else {
-            correctedMotorPowerLeft = Math.idiv(motorPowerLeft + (motorPowerLeft * percent), 100)
-            correctedMotorPowerRight = Math.idiv(motorPowerRight - (motorPowerRight * percent), 100)
+            correctedMotorPowerLeft = motorPowerLeft + Math.idiv(motorPowerLeft * percent, 100)
+            correctedMotorPowerRight = motorPowerRight - Math.idiv(motorPowerRight * percent, 100)
         }
         motorPowerAssignBoth(correctedMotorPowerLeft, correctedMotorPowerRight)
     }
