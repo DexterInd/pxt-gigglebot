@@ -29,9 +29,12 @@ gigglebot.spinMillisec(gigglebotWhichTurnDirection.Left, 1000)
 ```
 
 #### Steering is up to you, you can use it to orbit around a "sun". #steerMillisec
-With steering you control how much turning each wheel can do. In this example, the robot will turn halfway to the right, doing a curve around an object. The first number is percent-based. With a value of 0, the robot will not turn at all. With a value of 100, you will get the same behavior as the turn block.
+With steering you control how much turning each wheel can do. 
+In this example, the robot will turn towards the right, doing a curve around an object. 
+The first number is percent-based. With a value of 0, the robot will not turn at all. 
+With a value of 100, you will get the same behavior as the turn block.
 ```blocks
-gigglebot.steerMillisec(50, gigglebotWhichTurnDirection.Right, 1000)
+gigglebot.steerMillisec(20, gigglebotWhichTurnDirection.Right, 1000)
 ```
 ### Moving without time constraint 
 You can have blocks to drive, turn, spin, and steer, which are not time limited. That way, you can decide when to interrupt the GiggleBot. Maybe it gets dark, or there's an obstacle ahead.
