@@ -1,6 +1,6 @@
 {
     "name": "gigglebot",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "dependencies": {
         "core": "*",
         "distanceSensor": "github:dexterind/pxt-distancesensor#v0.0.1"
