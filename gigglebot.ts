@@ -506,7 +506,7 @@ namespace gigglebot {
     /////////// LIGHT SENSOR BLOCKS
     ///////////////////////////////////////////////////////////////////////
     /**
-     * Will follow a spotlight shone on its eyes. If the spotlight disappears the gigglebot will stop.
+     * Will follow a spotlight shone on its eyes.
      */
     //% blockId="gigglebot_follow_light" block="follow light"
     //% group=LightSensors
@@ -522,6 +522,29 @@ namespace gigglebot {
         } else if (current_lights[1] > current_lights[0] + diff) {
             // it's brighter to the left
             gigglebot.turn(gigglebotWhichTurnDirection.Left)
+        } else {
+            gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
+        }
+        basic.pause(100)
+    }
+
+    /**
+     * Will avoid a spotlight shone on its eyes.
+     */
+    //% blockId="gigglebot_follow_light" block="avoid light"
+    //% group=LightSensors
+    //% weight=40
+    export function lightAvoid() {
+        let diff = 20
+        let current_lights = gigglebot.lightSensorsRaw()
+        if (current_lights[0] < 10 && current_lights[1] < 10) {
+        }
+        else if (current_lights[0] > current_lights[1] + diff) {
+            // it's brighter to the right
+            gigglebot.turn(gigglebotWhichTurnDirection.Left)
+        } else if (current_lights[1] > current_lights[0] + diff) {
+            // it's brighter to the left
+            gigglebot.turn(gigglebotWhichTurnDirection.Right)
         } else {
             gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
         }
@@ -601,41 +624,11 @@ namespace gigglebot {
         return distanceSensor.readRangeSingleMillimeters()
     }
 
-    ////////////////////////////////////////////////////////////////////////
-    /////////// LIGHT COLOR SENSOR
-    ////////////////////////////////////////////////////////////////////////
-
-    //% block
-    //% group=LightColorSensor
-    export function lightColorSensorReadColorRed(): number {
-        let color = LightColorSensor.LCS_get_raw_data(true)
-        serial.writeNumber(color[0])
-        return color[0]
-    }
-    //% block
-    //% group=LightColorSensor
-    export function lightColorSensorReadColorGreen(): number {
-        let color = LightColorSensor.LCS_get_raw_data()
-        return color[1]
-    }
-    //% block
-    //% group=LightColorSensor
-    export function lightColorSensorReadColorBlue(): number {
-        let color = LightColorSensor.LCS_get_raw_data()
-        return color[2]
-    }
-
-
-    ///////////////////////////////////////////////////////////////////////
-    /////////// MORE BLOCKS
-    ///////////////////////////////////////////////////////////////////////
-
-
     /////////// SERVO BLOCKS
 
     //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
     //% group=Servo
-    //% degree.min=5 degree.max=175
+    //% degree.min=0 degree.max=180
     export function servoMove(which: gigglebotServoAction, degree: number) {
         if (which == gigglebotServoAction.Right) {
             pins.servoWritePin(AnalogPin.P13, degree)
@@ -652,6 +645,10 @@ namespace gigglebot {
             pins.servoWritePin(AnalogPin.P14, 180 - degree)
         }
     }
+
+    ///////////////////////////////////////////////////////////////////////
+    /////////// MORE BLOCKS
+    ///////////////////////////////////////////////////////////////////////
 
 
     /**
