@@ -107,7 +107,7 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor","OnBoardSensors", "Voltage", "Firmware"]'
+//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor", "LightColorSensor", "OnBoardSensors", "Voltage", "Firmware"]'
 namespace gigglebot {
     /**
      * Basic drive and sensor functionalities for GiggleBot
@@ -122,6 +122,7 @@ namespace gigglebot {
     let motorPowerLeft = currentMotorPower
     let motorPowerRight = currentMotorPower
     let distanceSensorInitDone = false;
+    let line_follow_in_action = false;
     let lineSensors = [0, 0]
     let lightSensors = [0, 0]
     // turn motor power off
@@ -167,7 +168,7 @@ namespace gigglebot {
     export function followThinLine() {
         let all_black = false
         driveStraight(gigglebotWhichDriveDirection.Forward)
-        while (!(all_black)) {
+        while (!(all_black) && line_follow_in_action) {
             lineSensors = lineSensorsRaw()
             if (lineTest(gigglebotLineColor.Black)) { 
                 // We're done
@@ -189,6 +190,7 @@ namespace gigglebot {
                 // this should never happen
             }
         }
+        stop()
     }
 
     /**
@@ -198,7 +200,7 @@ namespace gigglebot {
     function followThickLine() {
         let all_white = false
         driveStraight(gigglebotWhichDriveDirection.Forward)
-        while (!(all_white)) {
+        while (!(all_white) && line_follow_in_action) {
             lineSensors = lineSensorsRaw()
             if (lineTest(gigglebotLineColor.White)) {
                 all_white = true
@@ -217,8 +219,11 @@ namespace gigglebot {
                 /* motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5) */
             } else {
             }
+            basic.pause(20)
         }
+        stop()
     }
+
 
     /**
     * Configures the Distance Sensor.
@@ -435,20 +440,34 @@ namespace gigglebot {
     /**
      * A thin black line would fall between the two sensors. The gigglebot will stop when both sensors are reading black.
      * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
+     * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop following line" block.
      * @param type_of_line thin line or thick line
     */
     //% group=LineFollower
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     //% weight=50
     export function lineFollow(type_of_line: gigglebotLineType) {
-        if (type_of_line == gigglebotLineType.Thin) {
-            followThinLine()
-        }
-        else {
-            followThickLine()
-        }
+        line_follow_in_action = true
+        control.inBackground( () => {
+            if (type_of_line == gigglebotLineType.Thin) {
+                followThinLine()
+            }
+            else {
+                followThickLine()
+            }
+        })
     }
 
+    /**
+     * Interrupt the line following mode and return control to regular blocks.
+     */
+    //% group=LineFollower
+    //% blockId="gigglebot_stop_follow_line" block="stop following line"
+    //% weight= 49
+    export function lineFollowStop() {
+        line_follow_in_action = false
+        gigglebot.stop()
+    }
 
     /**
      * Will return true if the whole line sensor is reading either black or white.
@@ -526,7 +545,7 @@ namespace gigglebot {
 
     ////////////////////////////////////////////////////////////////////////
     /////////// DISTANCE SENSOR
-    ///////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
 
     /**
      * Get a reading of how far an obstacle is from the distanse sensor.
@@ -582,7 +601,29 @@ namespace gigglebot {
         return distanceSensor.readRangeSingleMillimeters()
     }
 
+    ////////////////////////////////////////////////////////////////////////
+    /////////// LIGHT COLOR SENSOR
+    ////////////////////////////////////////////////////////////////////////
 
+    //% block
+    //% group=LightColorSensor
+    export function lightColorSensorReadColorRed(): number {
+        let color = LightColorSensor.LCS_get_raw_data(true)
+        serial.writeNumber(color[0])
+        return color[0]
+    }
+    //% block
+    //% group=LightColorSensor
+    export function lightColorSensorReadColorGreen(): number {
+        let color = LightColorSensor.LCS_get_raw_data()
+        return color[1]
+    }
+    //% block
+    //% group=LightColorSensor
+    export function lightColorSensorReadColorBlue(): number {
+        let color = LightColorSensor.LCS_get_raw_data()
+        return color[2]
+    }
 
 
     ///////////////////////////////////////////////////////////////////////
