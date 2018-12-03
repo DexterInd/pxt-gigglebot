@@ -100,6 +100,13 @@ enum gigglebotInequality {
     Farther
 }
 
+enum gigglebotLightFollowMode {
+    //% block="follow"
+    Follow,
+    //% block="avoid"
+    Avoid
+}
+
 /**
  * Custom blocks
  */
@@ -107,7 +114,7 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor", "LightColorSensor", "OnBoardSensors", "Voltage", "Firmware"]'
+//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor", "OnBoardSensors", "Voltage", "Firmware"]'
 namespace gigglebot {
     /**
      * Basic drive and sensor functionalities for GiggleBot
@@ -123,6 +130,7 @@ namespace gigglebot {
     let motorPowerRight = currentMotorPower
     let distanceSensorInitDone = false;
     let line_follow_in_action = false;
+    let light_follow_in_action = false;
     let lineSensors = [0, 0]
     let lightSensors = [0, 0]
     // turn motor power off
@@ -174,20 +182,16 @@ namespace gigglebot {
                 // We're done
                 all_black = true
                 stop()
-            } else if (gigglebot.lineTest(gigglebotLineColor.White)) {
+            } else if (lineTest(gigglebotLineColor.White)) {
                 // Line is between the two sensors, hopefully
                 driveStraight(gigglebotWhichDriveDirection.Forward)
             } else if (lineSensors[0] < line_follower_threshold) {
-                // black is detected on left sensor only, therefore white on rightx             sensor
+                // black is detected on left sensor only, therefore white on right sensor
                 // correct towards the right
-                stop()
                 motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
             } else if (lineSensors[1] < line_follower_threshold) {
                 // correct towards the let
-                stop()
                 motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
-            } else {
-                // this should never happen
             }
         }
         stop()
@@ -209,15 +213,10 @@ namespace gigglebot {
                 driveStraight(gigglebotWhichDriveDirection.Forward)
             } else if (lineSensors[0] < line_follower_threshold) {
                 /* left sensor reads black, right sensor reads white */
-                stop()
-                /* motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5) */
                 turn(gigglebotWhichTurnDirection.Right)
             } else if (lineSensors[1] < line_follower_threshold) {
                 /* right sensor reads black, left sensor reads white */
-                stop()
                 turn(gigglebotWhichTurnDirection.Left)
-                /* motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5) */
-            } else {
             }
             basic.pause(20)
         }
@@ -388,6 +387,8 @@ namespace gigglebot {
     //% weight=70
     export function stop() {
         motorPowerAssign(gigglebotWhichMotor.Both, 0)
+        light_follow_in_action = false
+        line_follow_in_action = false
     }
 
     /**
@@ -459,14 +460,14 @@ namespace gigglebot {
     }
 
     /**
-     * Interrupt the line following mode and return control to regular blocks.
+     * True if robot is currently following a line.
+     * False otherwise
      */
     //% group=LineFollower
-    //% blockId="gigglebot_stop_follow_line" block="stop following line"
-    //% weight= 49
-    export function lineFollowStop() {
-        line_follow_in_action = false
-        gigglebot.stop()
+    //% blockId="gigglebot_follow_line_status" block="following line"
+    //% weight= 47
+    export function lineFollowStatus() : boolean {
+        return (line_follow_in_action)
     }
 
     /**
@@ -507,50 +508,69 @@ namespace gigglebot {
     ///////////////////////////////////////////////////////////////////////
     /**
      * Will follow a spotlight shone on its eyes.
+     * @param mode either follow or avoid light
+     * @param sensitivity how much of a difference between the two sides is needed for Gigglebot to react; eg: 20
      */
-    //% blockId="gigglebot_follow_light" block="follow light"
+    //% blockId="gigglebot_follow_light" block="react and %1 light"
     //% group=LightSensors
-    //% weight=40
-    export function lightFollow() {
-        let diff = 20
-        let current_lights = gigglebot.lightSensorsRaw()
-        if (current_lights[0] < 10 && current_lights[1] < 10) {
-        }
-        else if (current_lights[0] > current_lights[1] + diff) {
-            // it's brighter to the right
-            gigglebot.turn(gigglebotWhichTurnDirection.Right)
-        } else if (current_lights[1] > current_lights[0] + diff) {
-            // it's brighter to the left
-            gigglebot.turn(gigglebotWhichTurnDirection.Left)
-        } else {
-            gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
-        }
-        basic.pause(100)
+    //% weight=99
+    export function lightFollow(mode: gigglebotLightFollowMode, sensitivity: number = 20) {
+        light_follow_in_action = true
+        let giveup_count = 0;
+        control.inBackground( () => {
+            while ( light_follow_in_action && giveup_count < 5)
+            {
+                lightSensors = lightSensorsRaw()
+                serial.writeNumbers(lightSensors)
+                serial.writeLine("")
+
+                if (lightSensors[0] > lightSensors[1] + sensitivity) {
+                    // it's brighter to the right
+                    serial.writeString("Brighter to the right")
+                    if (mode == gigglebotLightFollowMode.Follow){
+                        turn(gigglebotWhichTurnDirection.Right)
+                    } else {
+                        turn(gigglebotWhichTurnDirection.Left)
+                    }
+                } else if (lightSensors[1] > lightSensors[0] + sensitivity) {
+                    // it's brighter to the left
+                    serial.writeString("Brighter to the left")
+                    if (mode == gigglebotLightFollowMode.Follow){
+                        turn(gigglebotWhichTurnDirection.Left)
+                    } else {
+                        turn(gigglebotWhichTurnDirection.Right)
+                    }
+                } else {
+                    serial.writeString("Go Straight")
+                    driveStraight(gigglebotWhichDriveDirection.Forward)
+                }
+
+                basic.pause(20);
+
+                if (mode == gigglebotLightFollowMode.Follow && lightSensors[0] < sensitivity && lightSensors[1] < sensitivity)
+                {
+                    giveup_count = giveup_count + 1
+                }
+                if (mode == gigglebotLightFollowMode.Avoid && lightSensors[0] > 1000 - sensitivity && lightSensors[1] > 1000 - sensitivity)
+                {
+                    giveup_count = giveup_count + 1
+                }
+            }
+            serial.writeString("STOP")
+            stop()
+        })
     }
 
     /**
-     * Will avoid a spotlight shone on its eyes.
+     * True if robot is currently reacting to light.
+     * False otherwise
      */
-    //% blockId="gigglebot_follow_light" block="avoid light"
     //% group=LightSensors
-    //% weight=40
-    export function lightAvoid() {
-        let diff = 20
-        let current_lights = gigglebot.lightSensorsRaw()
-        if (current_lights[0] < 10 && current_lights[1] < 10) {
-        }
-        else if (current_lights[0] > current_lights[1] + diff) {
-            // it's brighter to the right
-            gigglebot.turn(gigglebotWhichTurnDirection.Left)
-        } else if (current_lights[1] > current_lights[0] + diff) {
-            // it's brighter to the left
-            gigglebot.turn(gigglebotWhichTurnDirection.Right)
-        } else {
-            gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
-        }
-        basic.pause(100)
+    //% blockId="gigglebot_react_light_status" block="reacting to light"
+    //% weight= 47
+    export function lightFollowStatus() : boolean {
+        return (light_follow_in_action)
     }
-
 
     /**
     * Reads left or right light sensor. 
