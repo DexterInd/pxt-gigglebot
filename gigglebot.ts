@@ -443,20 +443,26 @@ namespace gigglebot {
      * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
      * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop following line" block.
      * @param type_of_line thin line or thick line
+     * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
     */
     //% group=LineFollower
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     //% weight=50
-    export function lineFollow(type_of_line: gigglebotLineType) {
-        line_follow_in_action = true
-        control.inBackground( () => {
-            if (type_of_line == gigglebotLineType.Thin) {
-                followThinLine()
-            }
-            else {
-                followThickLine()
-            }
-        })
+    export function lineFollow(type_of_line: gigglebotLineType, specific_line_threshold: number = 175) {
+        // test if the line follower is already in action in case this was put 
+        // in a loop. Only launch one in background
+        if (!line_follow_in_action) {
+            line_follow_in_action = true
+            line_follower_threshold = specific_line_threshold
+            control.inBackground( () => {
+                if (type_of_line == gigglebotLineType.Thin) {
+                    followThinLine()
+                }
+                else {
+                    followThickLine()
+                }
+            })
+        }
     }
 
     /**
@@ -511,62 +517,58 @@ namespace gigglebot {
      * @param mode either follow or avoid light
      * @param sensitivity how much of a difference between the two sides is needed for Gigglebot to react; eg: 20
      */
-    //% blockId="gigglebot_follow_light" block="react and %1 light"
+    //% blockId="gigglebot_follow_light" block="follow light"
     //% group=LightSensors
     //% weight=99
-    export function lightFollow(mode: gigglebotLightFollowMode, sensitivity: number = 20) {
-        light_follow_in_action = true
-        let giveup_count = 0;
-        control.inBackground( () => {
-            while ( light_follow_in_action && giveup_count < 5)
-            {
-                lightSensors = lightSensorsRaw()
-                serial.writeNumbers(lightSensors)
-                serial.writeLine("")
+    export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow, sensitivity: number = 20) {
+        // test if the light follower is already in action in case this was put 
+        // in a loop. Only launch one in background
+        if ( ! light_follow_in_action) {
+            light_follow_in_action = true
+            let giveup_count = 0;
+            control.inBackground( () => {
+                while ( light_follow_in_action && giveup_count < 5) {
+                    lightSensors = lightSensorsRaw()
 
-                if (lightSensors[0] > lightSensors[1] + sensitivity) {
-                    // it's brighter to the right
-                    serial.writeString("Brighter to the right")
-                    if (mode == gigglebotLightFollowMode.Follow){
-                        turn(gigglebotWhichTurnDirection.Right)
+                    if (lightSensors[0] > lightSensors[1] + sensitivity) {
+                        // it's brighter to the right
+                        if (mode == gigglebotLightFollowMode.Follow){
+                            turn(gigglebotWhichTurnDirection.Right)
+                        } else {
+                            turn(gigglebotWhichTurnDirection.Left)
+                        }
+                    } else if (lightSensors[1] > lightSensors[0] + sensitivity) {
+                        // it's brighter to the left
+                        if (mode == gigglebotLightFollowMode.Follow){
+                            turn(gigglebotWhichTurnDirection.Left)
+                        } else {
+                            turn(gigglebotWhichTurnDirection.Right)
+                        }
                     } else {
-                        turn(gigglebotWhichTurnDirection.Left)
+                        driveStraight(gigglebotWhichDriveDirection.Forward)
                     }
-                } else if (lightSensors[1] > lightSensors[0] + sensitivity) {
-                    // it's brighter to the left
-                    serial.writeString("Brighter to the left")
-                    if (mode == gigglebotLightFollowMode.Follow){
-                        turn(gigglebotWhichTurnDirection.Left)
-                    } else {
-                        turn(gigglebotWhichTurnDirection.Right)
+
+                    if (mode == gigglebotLightFollowMode.Follow && lightSensors[0] < sensitivity && lightSensors[1] < sensitivity) {
+                        giveup_count = giveup_count + 1
                     }
-                } else {
-                    serial.writeString("Go Straight")
-                    driveStraight(gigglebotWhichDriveDirection.Forward)
-                }
+                    if (mode == gigglebotLightFollowMode.Avoid && lightSensors[0] > 1000 - sensitivity && lightSensors[1] > 1000 - sensitivity) {
+                        giveup_count = giveup_count + 1
+                    }
 
-                basic.pause(20);
-
-                if (mode == gigglebotLightFollowMode.Follow && lightSensors[0] < sensitivity && lightSensors[1] < sensitivity)
-                {
-                    giveup_count = giveup_count + 1
+                    // Play well with others
+                    basic.pause(20);
                 }
-                if (mode == gigglebotLightFollowMode.Avoid && lightSensors[0] > 1000 - sensitivity && lightSensors[1] > 1000 - sensitivity)
-                {
-                    giveup_count = giveup_count + 1
-                }
-            }
-            serial.writeString("STOP")
-            stop()
-        })
+                stop()
+            })
+        }
     }
 
     /**
-     * True if robot is currently reacting to light.
+     * True if robot is currently following light.
      * False otherwise
      */
     //% group=LightSensors
-    //% blockId="gigglebot_react_light_status" block="reacting to light"
+    //% blockId="gigglebot_follow_light_status" block="following light"
     //% weight= 47
     export function lightFollowStatus() : boolean {
         return (light_follow_in_action)
@@ -823,5 +825,5 @@ namespace gigglebot {
         }
         // serial.writeNumbers(light_sensor)
         return lightSensors
-}
+    }
 }
