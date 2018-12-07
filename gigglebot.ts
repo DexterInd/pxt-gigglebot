@@ -516,11 +516,12 @@ namespace gigglebot {
      * Will follow a spotlight shone on its eyes.
      * @param mode either follow or avoid light
      * @param sensitivity how much of a difference between the two sides is needed for Gigglebot to react; eg: 20
+     * @param light_threshold how much light is needed to consider the loop needs to end. This can happen when a light following robot is covered with a box; eg: 10
      */
     //% blockId="gigglebot_follow_light" block="follow light"
     //% group=LightSensors
     //% weight=99
-    export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow, sensitivity: number = 20) {
+    export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow, sensitivity: number = 20, light_threshold: number = 10) {
         // test if the light follower is already in action in case this was put 
         // in a loop. Only launch one in background
         if ( ! light_follow_in_action) {
@@ -529,7 +530,6 @@ namespace gigglebot {
             control.inBackground( () => {
                 while ( light_follow_in_action && giveup_count < 5) {
                     lightSensors = lightSensorsRaw()
-
                     if (lightSensors[0] > lightSensors[1] + sensitivity) {
                         // it's brighter to the right
                         if (mode == gigglebotLightFollowMode.Follow){
@@ -547,16 +547,17 @@ namespace gigglebot {
                     } else {
                         driveStraight(gigglebotWhichDriveDirection.Forward)
                     }
-
-                    if (mode == gigglebotLightFollowMode.Follow && lightSensors[0] < sensitivity && lightSensors[1] < sensitivity) {
+                    if (mode == gigglebotLightFollowMode.Follow && lightSensors[0] < light_threshold && lightSensors[1] < light_threshold) {
                         giveup_count = giveup_count + 1
                     }
-                    if (mode == gigglebotLightFollowMode.Avoid && lightSensors[0] > 1000 - sensitivity && lightSensors[1] > 1000 - sensitivity) {
+                    if (mode == gigglebotLightFollowMode.Avoid && lightSensors[0] > 1000 - light_threshold && lightSensors[1] > 1000 - light_threshold) {
                         giveup_count = giveup_count + 1
                     }
-
-                    // Play well with others
+                    
+                    // play nice with others
                     basic.pause(20);
+
+
                 }
                 stop()
             })
