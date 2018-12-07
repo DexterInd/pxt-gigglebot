@@ -70,15 +70,17 @@ gigglebot.setSpeed(gigglebotWhichMotor.Both, gigglebotWhichSpeed.Slowest)
 ```
 
 ### Following a line #linefollow
-The GiggleBot comes with two line sensors that allows it to follow either a thick line or a thin line. The thick line is thick enough that both sensors will attempt to be over the line , while the thin line is thin enough to fit between the two sensors,and each sensor will attempt to avoid the line.
+The GiggleBot comes with two line sensors that allows it to follow either a thick line or a thin line. The thick line is thick enough that both sensors will attempt to be over the line, while the thin line is thin enough to fit between the two sensors and each sensor will attempt to avoid the line.
 
 ```blocks
-gigglebot.lineFollow(gigglebotLineType.Thick)
+input.onButtonPressed(Button.A, function () {
+    gigglebot.lineFollow(gigglebotLineType.Thick)
+})
 ```
 
 ### Reading the line sensors #linereadsensor
 
-You can also access the line sensors values directly. This allows you to write a line follower logic that is tailored to your specific needs.
+You can also access the line sensors values directly by using the blocks under the "more..." section. This allows you to write a line follower logic that is tailored to your specific needs.
 
 ```blocks
 basic.showNumber(gigglebot.lineReadSensor(gigglebotWhichTurnDirection.Right)) 
@@ -97,19 +99,20 @@ basic.forever(() => {
 
 ### Following a light #lightfollow
 
-The GiggleBot comes with two light sensors that allows it to follow a spotlight, a little bit like a cat would.  Shining a flashlight onto one eye will get the GiggleBot to turn in that direction. You need to put this block in a loop. You may use a forever loop or one where you control the end condition. Make sure you stop the robot when exiting the loop!
+The GiggleBot comes with two light sensors that allows it to follow a spotlight, a little bit like a cat would.  Shining a flashlight onto one eye will get the GiggleBot to turn in that direction. The robot will go straight if the two sides receive similar lighting conditions. 
 ```blocks
-input.onButtonPressed(Button.A, () => {
-    while (!(input.buttonIsPressed(Button.B))) {
-        gigglebot.lightFollow()
-    }
+input.onButtonPressed(Button.A, function () {
+    gigglebot.lightFollow()
+})
+input.onButtonPressed(Button.B, function () {
     gigglebot.stop()
 })
+
 ```
 
 ### Reading the light sensor values #lightreadsensor
 
-You can also read the light sensors values directly in order to implement a different behaviour, like having the GiggleBot fall asleep when it gets dark, and wake up when there's light.
+You can also read the light sensors values directly in order to implement a different behaviour, like having the GiggleBot fall asleep when it gets dark, and wake up when there's light. The light sensor reading block can be found under the "more..." section.
 
 ```blocks
 basic.forever(() => {
