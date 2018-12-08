@@ -170,38 +170,10 @@ namespace gigglebot {
     }
 
     /**
-     * This code allows the Gigglebot to follow a line thin enough to fall between the two sensors. 
-     * The robot will stop when both of its sensors will detect black.
-     */
-    export function followThinLine() {
-        let all_black = false
-        driveStraight(gigglebotWhichDriveDirection.Forward)
-        while (!(all_black) && line_follow_in_action) {
-            lineSensors = lineSensorsRaw()
-            if (lineTest(gigglebotLineColor.Black)) { 
-                // We're done
-                all_black = true
-                stop()
-            } else if (lineTest(gigglebotLineColor.White)) {
-                // Line is between the two sensors, hopefully
-                driveStraight(gigglebotWhichDriveDirection.Forward)
-            } else if (lineSensors[0] < line_follower_threshold) {
-                // black is detected on left sensor only, therefore white on right sensor
-                // correct towards the right
-                motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
-            } else if (lineSensors[1] < line_follower_threshold) {
-                // correct towards the let
-                motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
-            }
-        }
-        stop()
-    }
-
-    /**
      * Follows a line that is thicker than the space between the two sensors
      * The robot will stop when both of its sensors will detect white
      */
-    function followThickLine() {
+    function followLine(type_of_line: gigglebotLineType) {
         let all_white = false
         driveStraight(gigglebotWhichDriveDirection.Forward)
         while (!(all_white) && line_follow_in_action) {
@@ -213,15 +185,24 @@ namespace gigglebot {
                 driveStraight(gigglebotWhichDriveDirection.Forward)
             } else if (lineSensors[0] < line_follower_threshold) {
                 /* left sensor reads black, right sensor reads white */
-                turn(gigglebotWhichTurnDirection.Right)
+                if (type_of_line == gigglebotLineType.Thick){
+                    turn(gigglebotWhichTurnDirection.Right)
+                } else {
+                    turn(gigglebotWhichTurnDirection.Left)
+                }
             } else if (lineSensors[1] < line_follower_threshold) {
                 /* right sensor reads black, left sensor reads white */
-                turn(gigglebotWhichTurnDirection.Left)
+                if (type_of_line == gigglebotLineType.Thick){
+                    turn(gigglebotWhichTurnDirection.Left)
+                } else {
+                    turn(gigglebotWhichTurnDirection.Right)
+                }
             }
+
+            // play well with others
             basic.pause(20)
         }
-        stop()
-    }
+     }
 
 
     /**
@@ -453,13 +434,12 @@ namespace gigglebot {
         // in a loop. Only launch one in background
         if (!line_follow_in_action) {
             line_follow_in_action = true
+            light_follow_in_action = false // mutually exclusive
             line_follower_threshold = specific_line_threshold
             control.inBackground( () => {
-                if (type_of_line == gigglebotLineType.Thin) {
-                    followThinLine()
-                }
-                else {
-                    followThickLine()
+                followLine(type_of_line)
+                if (line_follow_in_action){
+                    stop()
                 }
             })
         }
@@ -526,6 +506,7 @@ namespace gigglebot {
         // in a loop. Only launch one in background
         if ( ! light_follow_in_action) {
             light_follow_in_action = true
+            line_follow_in_action = false // mutually exclusive
             let giveup_count = 0;
             control.inBackground( () => {
                 while ( light_follow_in_action && giveup_count < 5) {
@@ -547,19 +528,22 @@ namespace gigglebot {
                     } else {
                         driveStraight(gigglebotWhichDriveDirection.Forward)
                     }
+
                     if (mode == gigglebotLightFollowMode.Follow && lightSensors[0] < light_threshold && lightSensors[1] < light_threshold) {
                         giveup_count = giveup_count + 1
                     }
                     if (mode == gigglebotLightFollowMode.Avoid && lightSensors[0] > 1000 - light_threshold && lightSensors[1] > 1000 - light_threshold) {
                         giveup_count = giveup_count + 1
                     }
-                    
-                    // play nice with others
+
+                    // play well with others
                     basic.pause(20);
-
-
                 }
-                stop()
+                // If we're still in light following mode, then stop
+                // It's possible that stop() was called elsewhere
+                if (light_follow_in_action){
+                    stop()
+                }
             })
         }
     }
