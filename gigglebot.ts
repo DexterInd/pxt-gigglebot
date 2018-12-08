@@ -501,7 +501,9 @@ namespace gigglebot {
     //% blockId="gigglebot_follow_light" block="follow light"
     //% group=LightSensors
     //% weight=99
-    export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow, sensitivity: number = 20, light_threshold: number = 10) {
+    export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow, 
+                                sensitivity: number = 20, 
+                                light_threshold: number = 10) {
         // test if the light follower is already in action in case this was put 
         // in a loop. Only launch one in background
         if ( ! light_follow_in_action) {
@@ -529,11 +531,19 @@ namespace gigglebot {
                         driveStraight(gigglebotWhichDriveDirection.Forward)
                     }
 
-                    if (mode == gigglebotLightFollowMode.Follow && lightSensors[0] < light_threshold && lightSensors[1] < light_threshold) {
+                    if (mode == gigglebotLightFollowMode.Follow && 
+                        lightSensors[0] < light_threshold && 
+                        lightSensors[1] < light_threshold) {
                         giveup_count = giveup_count + 1
                     }
-                    if (mode == gigglebotLightFollowMode.Avoid && lightSensors[0] > 1000 - light_threshold && lightSensors[1] > 1000 - light_threshold) {
+                    else if (mode == gigglebotLightFollowMode.Avoid && 
+                             lightSensors[0] > 1000 - light_threshold && 
+                             lightSensors[1] > 1000 - light_threshold) {
                         giveup_count = giveup_count + 1
+                    }
+                    else {
+                        // must have consecutive readings before giving up
+                        giveup_count = 0  
                     }
 
                     // play well with others
