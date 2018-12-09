@@ -21,7 +21,7 @@
     "gigglebot.lightReadSensor": "Lire le capteur de lumière de gauche ou de droite. \nLes capteurs de lumière sont situés juste en avant des yeux, ils sont tout petits!\nLes valeurs vont de 0 à 1023, en réalité rarement plus que ~950.",
     "gigglebot.lightReadSensor|param|which": "gauche ou droite",
     "gigglebot.lineFollow": "Une ligne mince passera entre les deux capteurs et le GiggleBot arrêtera lorsque les deux capteurs détecteront du noir.\nUne large ligne noire sera plus large que la distance entre les deux capteurs. Le GiggleBot arrêtera lorsque les deux capteurs détecteront du blanc.",
-    "gigglebot.lineFollowStatus": "Vrai lorsque le robot suit une ligne.\r\nFalx autrement.",
+    "gigglebot.lineFollowStatus": "Vrai lorsque le robot suit une ligne.\r\nFaux autrement.",
     "gigglebot.lineFollow|param|specific_line_threshold": "modifie la valeur par défaut du seuil de détection d'une ligne pour une meilleure adaptation à l'environnement du GiggleBot.",
     "gigglebot.lineFollow|param|type_of_line": "ligne large ou mince.",
     "gigglebot.lineReadSensor": "Lit le capteur de gauche ou de droite.",
