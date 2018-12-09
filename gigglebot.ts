@@ -226,7 +226,7 @@ namespace gigglebot {
     ///////////////////////////////////////////////////////////////////////
 
     /**
-     * Will let gigglebot move forward or backward for a number of milliseconds.
+     * Will let GiggleBot move forward or backward for a number of milliseconds.
      * Distance covered during that time is related to the freshness of the batteries.
      * @param dir forward or backward; 
      * @param delay for how many milliseconds; eg: 1000
@@ -242,7 +242,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will make gigglebot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
+     * Will make GiggleBot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
      * @param turn_dir turning left or right
      * @param delay for how many milliseconds; eg: 1000
      */
@@ -257,7 +257,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
+     * GiggleBot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
      * @param turn_dir turning left or right
      * @param delay how many milliseconds; eg: 1000
      */
@@ -272,7 +272,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will drive forward while steering to one side for the provided number of milliseconds. 
+     * GiggleBot will drive forward while steering to one side for the provided number of milliseconds. 
      * Useful when it needs to go around an obstacle, or orbit around an object.
      * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
      * @param percent the variation in power between left and right; eg: 0, 20, 50, 100
@@ -292,7 +292,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will let gigglebot move forward or backward until told otherwise (either by a stop block or a turn block).
+     * Will let GiggleBot move forward or backward until told otherwise (either by a stop block or a turn block).
      * @param dir forward or backward
      */
     //% blockId="gigglebot_drive_straight" block="drive %dir"
@@ -309,7 +309,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will make gigglebot turn left or right until told otherwise (by a stop block or a drive block).
+     * Will make GiggleBot turn left or right until told otherwise (by a stop block or a drive block).
      */
     //% blockId="gigglebotTurn" block="turn %turn_dir"
     //% weight=88
@@ -323,7 +323,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will spin on itself until told otherwise, like a turn but staying in the same spot. Especially useful when drawing.
+     * GiggleBot will spin on itself until told otherwise, like a turn but staying in the same spot. Especially useful when drawing.
      * @param turn_dir left or right;
      */
     //% blockId="gigglebotSpin" block="spin %turn_dir"
@@ -338,7 +338,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will drive forward while steering to one side. 
+     * GiggleBot will drive forward while steering to one side. 
      * Useful when it needs to go around an obstacle, or orbit around an object.
      * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
      * @param percent value between 0 and 100 to control the amount of steering
@@ -420,8 +420,8 @@ namespace gigglebot {
     }
 
     /**
-     * A thin black line would fall between the two sensors. The gigglebot will stop when both sensors are reading black.
-     * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
+     * A thin black line would fall between the two sensors. The GiggleBot will stop when both sensors are reading black.
+     * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
      * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop following line" block.
      * @param type_of_line thin line or thick line
      * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
@@ -495,7 +495,7 @@ namespace gigglebot {
     /**
      * Will follow a spotlight shone on its eyes.
      * @param mode either follow or avoid light
-     * @param sensitivity how much of a difference between the two sides is needed for Gigglebot to react; eg: 20
+     * @param sensitivity how much of a difference between the two sides is needed for GiggleBot to react; eg: 20
      * @param light_threshold how much light is needed to consider the loop needs to end. This can happen when a light following robot is covered with a box; eg: 10
      */
     //% blockId="gigglebot_follow_light" block="follow light"
@@ -643,6 +643,11 @@ namespace gigglebot {
 
     /////////// SERVO BLOCKS
 
+    /**
+     * Positions a servo motor to a specified position
+     * @param which left or right servo
+     * @param degree which position, from 0 to 180
+     */
     //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
     //% group=Servo
     //% degree.min=0 degree.max=180
@@ -669,8 +674,8 @@ namespace gigglebot {
 
 
     /**
-     * This allows the user to correct the motors on the Gigglebot if it's not driving straight
-     * @param dir: if the gigglebot drives to the left, then correct to the right. Vice versa. 
+     * This allows the user to correct the motors on the GiggleBot if it's not driving straight
+     * @param dir: if the GiggleBot drives to the left, then correct to the right. Vice versa. 
      * @param trim_value: a correction value between 0 and 100, but most likely below 10
      */
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
