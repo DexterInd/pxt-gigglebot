@@ -496,7 +496,7 @@ namespace gigglebot {
      * Will follow a spotlight shone on its eyes.
      * @param mode either follow or avoid light
      * @param sensitivity how much of a difference between the two sides is needed for GiggleBot to react; eg: 20
-     * @param light_threshold how much light is needed to consider the loop needs to end. This can happen when a light following robot is covered with a box; eg: 10
+     * @param light_threshold how much light is needed to exit the loop. This can happen when a light following robot is covered with a box; eg: 10
      */
     //% blockId="gigglebot_follow_light" block="follow light"
     //% group=LightSensors
