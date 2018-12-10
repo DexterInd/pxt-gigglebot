@@ -100,6 +100,13 @@ enum gigglebotInequality {
     Farther
 }
 
+enum gigglebotLightFollowMode {
+    //% block="follow"
+    Follow,
+    //% block="avoid"
+    Avoid
+}
+
 /**
  * Custom blocks
  */
@@ -107,7 +114,7 @@ enum gigglebotInequality {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor","OnBoardSensors", "Voltage", "Firmware"]'
+//% groups='["other", "LineFollower", "LightSensors", "Servo", "DistanceSensor", "OnBoardSensors", "Voltage", "Firmware"]'
 namespace gigglebot {
     /**
      * Basic drive and sensor functionalities for GiggleBot
@@ -122,6 +129,8 @@ namespace gigglebot {
     let motorPowerLeft = currentMotorPower
     let motorPowerRight = currentMotorPower
     let distanceSensorInitDone = false;
+    let line_follow_in_action = false;
+    let light_follow_in_action = false;
     let lineSensors = [0, 0]
     let lightSensors = [0, 0]
     // turn motor power off
@@ -161,44 +170,13 @@ namespace gigglebot {
     }
 
     /**
-     * This code allows the Gigglebot to follow a line thin enough to fall between the two sensors. 
-     * The robot will stop when both of its sensors will detect black.
-     */
-    export function followThinLine() {
-        let all_black = false
-        driveStraight(gigglebotWhichDriveDirection.Forward)
-        while (!(all_black)) {
-            lineSensors = lineSensorsRaw()
-            if (lineTest(gigglebotLineColor.Black)) { 
-                // We're done
-                all_black = true
-                stop()
-            } else if (gigglebot.lineTest(gigglebotLineColor.White)) {
-                // Line is between the two sensors, hopefully
-                driveStraight(gigglebotWhichDriveDirection.Forward)
-            } else if (lineSensors[0] < line_follower_threshold) {
-                // black is detected on left sensor only, therefore white on rightx             sensor
-                // correct towards the right
-                stop()
-                motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5)
-            } else if (lineSensors[1] < line_follower_threshold) {
-                // correct towards the let
-                stop()
-                motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5)
-            } else {
-                // this should never happen
-            }
-        }
-    }
-
-    /**
      * Follows a line that is thicker than the space between the two sensors
      * The robot will stop when both of its sensors will detect white
      */
-    function followThickLine() {
+    function followLine(type_of_line: gigglebotLineType) {
         let all_white = false
         driveStraight(gigglebotWhichDriveDirection.Forward)
-        while (!(all_white)) {
+        while (!(all_white) && line_follow_in_action) {
             lineSensors = lineSensorsRaw()
             if (lineTest(gigglebotLineColor.White)) {
                 all_white = true
@@ -207,18 +185,25 @@ namespace gigglebot {
                 driveStraight(gigglebotWhichDriveDirection.Forward)
             } else if (lineSensors[0] < line_follower_threshold) {
                 /* left sensor reads black, right sensor reads white */
-                stop()
-                /* motorPowerAssign(gigglebotWhichMotor.Left, motorPowerLeft + 5) */
-                turn(gigglebotWhichTurnDirection.Right)
+                if (type_of_line == gigglebotLineType.Thick){
+                    turn(gigglebotWhichTurnDirection.Right)
+                } else {
+                    turn(gigglebotWhichTurnDirection.Left)
+                }
             } else if (lineSensors[1] < line_follower_threshold) {
                 /* right sensor reads black, left sensor reads white */
-                stop()
-                turn(gigglebotWhichTurnDirection.Left)
-                /* motorPowerAssign(gigglebotWhichMotor.Right, motorPowerRight + 5) */
-            } else {
+                if (type_of_line == gigglebotLineType.Thick){
+                    turn(gigglebotWhichTurnDirection.Left)
+                } else {
+                    turn(gigglebotWhichTurnDirection.Right)
+                }
             }
+
+            // play well with others
+            basic.pause(20)
         }
-    }
+     }
+
 
     /**
     * Configures the Distance Sensor.
@@ -241,7 +226,7 @@ namespace gigglebot {
     ///////////////////////////////////////////////////////////////////////
 
     /**
-     * Will let gigglebot move forward or backward for a number of milliseconds.
+     * Will let GiggleBot move forward or backward for a number of milliseconds.
      * Distance covered during that time is related to the freshness of the batteries.
      * @param dir forward or backward; 
      * @param delay for how many milliseconds; eg: 1000
@@ -257,7 +242,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will make gigglebot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
+     * Will make GiggleBot turn left and right for a number of milliseconds. How far it turns depends on the freshness of the batteries.
      * @param turn_dir turning left or right
      * @param delay for how many milliseconds; eg: 1000
      */
@@ -272,7 +257,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
+     * GiggleBot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
      * @param turn_dir turning left or right
      * @param delay how many milliseconds; eg: 1000
      */
@@ -287,7 +272,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will drive forward while steering to one side for the provided number of milliseconds. 
+     * GiggleBot will drive forward while steering to one side for the provided number of milliseconds. 
      * Useful when it needs to go around an obstacle, or orbit around an object.
      * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
      * @param percent the variation in power between left and right; eg: 0, 20, 50, 100
@@ -307,7 +292,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will let gigglebot move forward or backward until told otherwise (either by a stop block or a turn block).
+     * Will let GiggleBot move forward or backward until told otherwise (either by a stop block or a turn block).
      * @param dir forward or backward
      */
     //% blockId="gigglebot_drive_straight" block="drive %dir"
@@ -324,7 +309,7 @@ namespace gigglebot {
     }
 
     /**
-     * Will make gigglebot turn left or right until told otherwise (by a stop block or a drive block).
+     * Will make GiggleBot turn left or right until told otherwise (by a stop block or a drive block).
      */
     //% blockId="gigglebotTurn" block="turn %turn_dir"
     //% weight=88
@@ -338,7 +323,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will spin on itself until told otherwise, like a turn but staying in the same spot. Especially useful when drawing.
+     * GiggleBot will spin on itself until told otherwise, like a turn but staying in the same spot. Especially useful when drawing.
      * @param turn_dir left or right;
      */
     //% blockId="gigglebotSpin" block="spin %turn_dir"
@@ -353,7 +338,7 @@ namespace gigglebot {
     }
 
     /** 
-     * Gigglebot will drive forward while steering to one side. 
+     * GiggleBot will drive forward while steering to one side. 
      * Useful when it needs to go around an obstacle, or orbit around an object.
      * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
      * @param percent value between 0 and 100 to control the amount of steering
@@ -383,6 +368,8 @@ namespace gigglebot {
     //% weight=70
     export function stop() {
         motorPowerAssign(gigglebotWhichMotor.Both, 0)
+        light_follow_in_action = false
+        line_follow_in_action = false
     }
 
     /**
@@ -433,22 +420,41 @@ namespace gigglebot {
     }
 
     /**
-     * A thin black line would fall between the two sensors. The gigglebot will stop when both sensors are reading black.
-     * A thick black line would have the two sensors on top of it at all times. The gigglebot will stop when both sensors are reading white.
+     * A thin black line would fall between the two sensors. The GiggleBot will stop when both sensors are reading black.
+     * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
+     * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop following line" block.
      * @param type_of_line thin line or thick line
+     * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
     */
     //% group=LineFollower
     //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
     //% weight=50
-    export function lineFollow(type_of_line: gigglebotLineType) {
-        if (type_of_line == gigglebotLineType.Thin) {
-            followThinLine()
-        }
-        else {
-            followThickLine()
+    export function lineFollow(type_of_line: gigglebotLineType, specific_line_threshold: number = 175) {
+        // test if the line follower is already in action in case this was put 
+        // in a loop. Only launch one in background
+        if (!line_follow_in_action) {
+            line_follow_in_action = true
+            light_follow_in_action = false // mutually exclusive
+            line_follower_threshold = specific_line_threshold
+            control.inBackground( () => {
+                followLine(type_of_line)
+                if (line_follow_in_action){
+                    stop()
+                }
+            })
         }
     }
 
+    /**
+     * True if robot is currently following a line.
+     * False otherwise
+     */
+    //% group=LineFollower
+    //% blockId="gigglebot_follow_line_status" block="following line"
+    //% weight= 47
+    export function lineFollowStatus() : boolean {
+        return (line_follow_in_action)
+    }
 
     /**
      * Will return true if the whole line sensor is reading either black or white.
@@ -487,28 +493,81 @@ namespace gigglebot {
     /////////// LIGHT SENSOR BLOCKS
     ///////////////////////////////////////////////////////////////////////
     /**
-     * Will follow a spotlight shone on its eyes. If the spotlight disappears the gigglebot will stop.
+     * Will follow a spotlight shone on its eyes.
+     * @param mode either follow or avoid light
+     * @param sensitivity how much of a difference between the two sides is needed for GiggleBot to react; eg: 20
+     * @param light_threshold how much light is needed to exit the loop. This can happen when a light following robot is covered with a box; eg: 10
      */
     //% blockId="gigglebot_follow_light" block="follow light"
     //% group=LightSensors
-    //% weight=40
-    export function lightFollow() {
-        let diff = 20
-        let current_lights = gigglebot.lightSensorsRaw()
-        if (current_lights[0] < 10 && current_lights[1] < 10) {
+    //% weight=99
+    export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow, 
+                                sensitivity: number = 20, 
+                                light_threshold: number = 10) {
+        // test if the light follower is already in action in case this was put 
+        // in a loop. Only launch one in background
+        if ( ! light_follow_in_action) {
+            light_follow_in_action = true
+            line_follow_in_action = false // mutually exclusive
+            let giveup_count = 0;
+            control.inBackground( () => {
+                while ( light_follow_in_action && giveup_count < 5) {
+                    lightSensors = lightSensorsRaw()
+                    if (lightSensors[0] > lightSensors[1] + sensitivity) {
+                        // it's brighter to the right
+                        if (mode == gigglebotLightFollowMode.Follow){
+                            turn(gigglebotWhichTurnDirection.Right)
+                        } else {
+                            turn(gigglebotWhichTurnDirection.Left)
+                        }
+                    } else if (lightSensors[1] > lightSensors[0] + sensitivity) {
+                        // it's brighter to the left
+                        if (mode == gigglebotLightFollowMode.Follow){
+                            turn(gigglebotWhichTurnDirection.Left)
+                        } else {
+                            turn(gigglebotWhichTurnDirection.Right)
+                        }
+                    } else {
+                        driveStraight(gigglebotWhichDriveDirection.Forward)
+                    }
+
+                    if (mode == gigglebotLightFollowMode.Follow && 
+                        lightSensors[0] < light_threshold && 
+                        lightSensors[1] < light_threshold) {
+                        giveup_count = giveup_count + 1
+                    }
+                    else if (mode == gigglebotLightFollowMode.Avoid && 
+                             lightSensors[0] > 1000 - light_threshold && 
+                             lightSensors[1] > 1000 - light_threshold) {
+                        giveup_count = giveup_count + 1
+                    }
+                    else {
+                        // must have consecutive readings before giving up
+                        giveup_count = 0  
+                    }
+
+                    // play well with others
+                    basic.pause(20);
+                }
+                // If we're still in light following mode, then stop
+                // It's possible that stop() was called elsewhere
+                if (light_follow_in_action){
+                    stop()
+                }
+            })
         }
-        else if (current_lights[0] > current_lights[1] + diff) {
-            // it's brighter to the right
-            gigglebot.turn(gigglebotWhichTurnDirection.Right)
-        } else if (current_lights[1] > current_lights[0] + diff) {
-            // it's brighter to the left
-            gigglebot.turn(gigglebotWhichTurnDirection.Left)
-        } else {
-            gigglebot.driveStraight(gigglebotWhichDriveDirection.Forward)
-        }
-        basic.pause(100)
     }
 
+    /**
+     * True if robot is currently following light.
+     * False otherwise
+     */
+    //% group=LightSensors
+    //% blockId="gigglebot_follow_light_status" block="following light"
+    //% weight= 47
+    export function lightFollowStatus() : boolean {
+        return (light_follow_in_action)
+    }
 
     /**
     * Reads left or right light sensor. 
@@ -526,7 +585,7 @@ namespace gigglebot {
 
     ////////////////////////////////////////////////////////////////////////
     /////////// DISTANCE SENSOR
-    ///////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////
 
     /**
      * Get a reading of how far an obstacle is from the distanse sensor.
@@ -582,19 +641,16 @@ namespace gigglebot {
         return distanceSensor.readRangeSingleMillimeters()
     }
 
-
-
-
-    ///////////////////////////////////////////////////////////////////////
-    /////////// MORE BLOCKS
-    ///////////////////////////////////////////////////////////////////////
-
-
     /////////// SERVO BLOCKS
 
+    /**
+     * Positions a servo motor to a specified position
+     * @param which left or right servo
+     * @param degree which position, from 0 to 180
+     */
     //% blockId="gigglebot_servo" block="set %which|servo to |%degree"
     //% group=Servo
-    //% degree.min=5 degree.max=175
+    //% degree.min=0 degree.max=180
     export function servoMove(which: gigglebotServoAction, degree: number) {
         if (which == gigglebotServoAction.Right) {
             pins.servoWritePin(AnalogPin.P13, degree)
@@ -612,10 +668,14 @@ namespace gigglebot {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////
+    /////////// MORE BLOCKS
+    ///////////////////////////////////////////////////////////////////////
+
 
     /**
-     * This allows the user to correct the motors on the Gigglebot if it's not driving straight
-     * @param dir: if the gigglebot drives to the left, then correct to the right. Vice versa. 
+     * This allows the user to correct the motors on the GiggleBot if it's not driving straight
+     * @param dir: if the GiggleBot drives to the left, then correct to the right. Vice versa. 
      * @param trim_value: a correction value between 0 and 100, but most likely below 10
      */
     //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
@@ -765,5 +825,5 @@ namespace gigglebot {
         }
         // serial.writeNumbers(light_sensor)
         return lightSensors
-}
+    }
 }
