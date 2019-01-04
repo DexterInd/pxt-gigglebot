@@ -142,7 +142,7 @@ enum gigglebotPressureScale {
 
 
 //% weight=99 color=#46BFB1 icon="\uf0d1"
-//% groups='["other", "Line Follower", "Light Sensors", "Servo", "Distance Sensor", "Temperature Humidity Pressure", "On Board Sensors", "Voltage", "Firmware"]'
+//% groups='["other", "Line Follower", "Light Sensors", "Servo", "Distance Sensor (Add-On)", "Temperature Humidity Pressure (Add-On)", "On Board Sensors", "Voltage", "Firmware"]'
 namespace gigglebot {
   /**
    * Basic drive and sensor functionalities for GiggleBot
@@ -684,7 +684,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
    */
   //% blockId="distanceSensorReadRangeContinuous" block="distance to obstacle (mm)"
   //% advanced=true
-  //% group="Distance Sensor"
+  //% group="Distance Sensor (Add-On)"
   export function distanceSensorReadRangeContinuous(): number {
       if (distanceSensorInitDone == false) {
           distanceSensorConfigure()
@@ -698,7 +698,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
    * @param dist how many millimeters; eg: 100
    */
   //% blockId="distanceSensorTestForObstacle" block="obstacle is %inequality| %dist| mm"
-  //% group="Distance Sensor"
+  //% group="Distance Sensor (Add-On)"
   //% weight=30
   export function distanceSensorTestForObstacle(inequality: gigglebotInequality, dist: number): boolean {
       if (distanceSensorInitDone == false) {
@@ -767,7 +767,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   /**
    * Get a temperature reading from the Temp/Humidity/Pressure sensor
    */
-  //% group="Temperature Humidity Pressure"
+  //% group="Temperature Humidity Pressure (Add-On)"
   //% blockId="gigglebot_temperature" block="temperature in %scale"
   export function temperature(scale: gigglebotTempScale): number {
     if (thpSensorInitDone == false) 
@@ -787,7 +787,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   /**
    * Get an atmospheric humidity reading from the Temp/Humidity/Pressure sensor
    */
-  //% group="Temperature Humidity Pressure"
+  //% group="Temperature Humidity Pressure (Add-On)"
   //% blockId="gigglebot_humidity" block="humidity"
   export function humidity(): number {
     if (thpSensorInitDone == false) 
@@ -801,7 +801,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   /**
    * Get an atmospheric pressure reading from the Temp/Humidity/Pressure sensor
    */
-  //% group="Temperature Humidity Pressure"
+  //% group="Temperature Humidity Pressure (Add-On)"
   //% blockId="gigglebot_pressure" block="pressure in %pressureScale"
   export function pressure(pressureScale: gigglebotPressureScale): number {
     // call to read_temperature() to udpate temperature compensation
@@ -824,7 +824,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   /**
    * Read Dew Point
    */
-  //% group="Temperature Humidity Pressure"
+  //% group="Temperature Humidity Pressure (Add-On)"
   //% blockId="gigglebot_dewpoint" block="dew point in %scale"
   //% advanced=true
   export function dewPoint(scale: gigglebotTempScale): number {
