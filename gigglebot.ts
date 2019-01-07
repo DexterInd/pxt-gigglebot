@@ -479,7 +479,7 @@ namespace gigglebot {
    * True if robot is currently following a line.
    * False otherwise
    */
-  //% "group="Line Follower"
+  //% group="Line Follower"
   //% blockId="gigglebot_follow_line_status" block="following line"
   //% weight= 47
   export function lineFollowStatus() : boolean {
