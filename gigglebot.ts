@@ -213,7 +213,7 @@ namespace gigglebot {
         // test if robot is over white
         if (lineTest(gigglebotLineColor.White)) {
           attempt = attempt + 1
-          if (attempt == max_attempts) {
+          if (attempt >= max_attempts) {
             all_white = true // gets us out of the loop
             stop()  // stops and sets line_follow_in_action to false
           } else {
@@ -477,7 +477,7 @@ namespace gigglebot {
   //% group="Line Follower"
   //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
   //% weight=50
-  export function lineFollow(type_of_line: gigglebotLineType, specific_line_threshold: number = 175) {
+  export function lineFollow(type_of_line: gigglebotLineType, specific_line_threshold: number = 200) {
       // test if the line follower is already in action in case this was put 
       // in a loop. Only launch one in background
       if (!line_follow_in_action) {
@@ -641,7 +641,6 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
           }
       }
       else {
-        // still debating whether I want this stop() here or not
         stop()
       }
 }
