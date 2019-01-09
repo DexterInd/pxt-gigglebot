@@ -203,34 +203,52 @@ namespace gigglebot {
    * Follows a line that is thicker than the space between the two sensors
    * The robot will stop when both of its sensors will detect white
    */
-  function followLine(type_of_line: gigglebotLineType) {
+  function followLine(type_of_line: gigglebotLineType, max_attempts: number = 3) {
       let all_white = false
+      let attempt = 0
       driveStraight(gigglebotWhichDriveDirection.Forward)
       while (!(all_white) && line_follow_in_action) {
-          lineSensors = lineSensorsRaw()
-          if (lineTest(gigglebotLineColor.White)) {
-              all_white = true
-              stop()
-          } else if (lineTest(gigglebotLineColor.Black)) {
-              driveStraight(gigglebotWhichDriveDirection.Forward)
+        lineSensors = lineSensorsRaw()
+
+        // test if robot is over white
+        if (lineTest(gigglebotLineColor.White)) {
+          attempt = attempt + 1
+          if (attempt >= max_attempts) {
+            all_white = true // gets us out of the loop
+            stop()  // stops and sets line_follow_in_action to false
+          } else {
+            // serial.writeLine("move around a bit")
+            // attempt to get out of bright spot
+            driveStraight(gigglebotWhichDriveDirection.Forward)
+            basic.pause(5)
+          }
+        // robot is seeing at least one black reading
+        } else {
+          attempt = 0
+          // test if two black readings
+          if (lineTest(gigglebotLineColor.Black)) {
+            driveStraight(gigglebotWhichDriveDirection.Forward)
+
           } else if (lineSensors[0] < line_follower_threshold) {
-              /* left sensor reads black, right sensor reads white */
-              if (type_of_line == gigglebotLineType.Thick){
-                  turn(gigglebotWhichTurnDirection.Right)
-              } else {
-                  turn(gigglebotWhichTurnDirection.Left)
-              }
+            /* left sensor reads black, right sensor reads white */
+            if (type_of_line == gigglebotLineType.Thick){
+                turn(gigglebotWhichTurnDirection.Right)
+            } else {
+                turn(gigglebotWhichTurnDirection.Left)
+            }
+
           } else if (lineSensors[1] < line_follower_threshold) {
-              /* right sensor reads black, left sensor reads white */
-              if (type_of_line == gigglebotLineType.Thick){
-                  turn(gigglebotWhichTurnDirection.Left)
-              } else {
-                  turn(gigglebotWhichTurnDirection.Right)
-              }
+            /* right sensor reads black, left sensor reads white */
+            if (type_of_line == gigglebotLineType.Thick){
+                turn(gigglebotWhichTurnDirection.Left)
+            } else {
+                turn(gigglebotWhichTurnDirection.Right)
+            }
           }
 
           // play well with others
           basic.pause(20)
+        }
       }
    }
 
@@ -459,7 +477,7 @@ namespace gigglebot {
   //% group="Line Follower"
   //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
   //% weight=50
-  export function lineFollow(type_of_line: gigglebotLineType, specific_line_threshold: number = 175) {
+  export function lineFollow(type_of_line: gigglebotLineType, specific_line_threshold: number = 200) {
       // test if the line follower is already in action in case this was put 
       // in a loop. Only launch one in background
       if (!line_follow_in_action) {
@@ -599,7 +617,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
      * @param diff the difference between the two sensors that will trigger a reaction; eg: 50
      * 
      */
-    //% blockId="gigglebot_orient_light" block="orient %dir light"
+    //% blockId="gigglebot_orient_light" block="turn %dir light"
     //% group="Light Sensors"
     //% weight=80
     export function lightOrient(dir: gigglebotTowardsAway = gigglebotTowardsAway.Towards, diff: number = 50) {
@@ -621,6 +639,9 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
           else {
             turn(gigglebotWhichTurnDirection.Right)
           }
+      }
+      else {
+        stop()
       }
 }
 
