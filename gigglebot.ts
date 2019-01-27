@@ -170,6 +170,8 @@ namespace gigglebot {
   /**
    * return current power setting of the left motor
    */
+  //% block
+  //% advanced=true
   export function leftPower() {
       return motorPowerLeft
   }
@@ -177,6 +179,8 @@ namespace gigglebot {
   /**
    * return current power setting of the right motor
    */
+  //% block
+  //% advanced=true
   export function rightPower() {
       return motorPowerRight
   }
@@ -615,12 +619,13 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
      * To do a light following robot, this block needs to be inserted in a loop.
      * You control when the loop ends.
      * @param diff the difference between the two sensors that will trigger a reaction; eg: 50
+     * @param delay how long in milliseconds to turn for before stopping; eg: 200
      * 
      */
     //% blockId="gigglebot_orient_light" block="turn %dir light"
     //% group="Light Sensors"
     //% weight=80
-    export function lightOrient(dir: gigglebotTowardsAway = gigglebotTowardsAway.Towards, diff: number = 50) {
+    export function lightOrient(dir: gigglebotTowardsAway = gigglebotTowardsAway.Towards, diff: number = 50, delay: number = 200) {
       let current_lights = lightSensorsRaw()
       if (current_lights[0] > current_lights[1] + diff) {
           // it's brighter to the right
@@ -643,6 +648,8 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
       else {
         stop()
       }
+      basic.pause(delay)
+      stop()
 }
 
   /**
