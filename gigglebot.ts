@@ -170,8 +170,6 @@ namespace gigglebot {
   /**
    * return current power setting of the left motor
    */
-  //% block
-  //% advanced=true
   export function leftPower() {
       return motorPowerLeft
   }
@@ -179,8 +177,6 @@ namespace gigglebot {
   /**
    * return current power setting of the right motor
    */
-  //% block
-  //% advanced=true
   export function rightPower() {
       return motorPowerRight
   }
