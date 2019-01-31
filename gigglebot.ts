@@ -470,7 +470,7 @@ namespace gigglebot {
   /**
    * A thin black line would fall between the two sensors. The GiggleBot will stop when both sensors are reading black.
    * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
-   * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop following line" block.
+   * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop" block.
    * @param type_of_line thin line or thick line
    * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
   */
@@ -868,6 +868,8 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   ///////////////////////////////////////////////////////////////////////
   /////////// MORE BLOCKS
   ///////////////////////////////////////////////////////////////////////
+
+
 
 
   /**
