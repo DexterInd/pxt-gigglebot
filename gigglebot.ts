@@ -419,6 +419,17 @@ namespace gigglebot {
       light_follow_in_action = false
       line_follow_in_action = false
   }
+  
+    /**
+   * This allows the user to correct the motors on the GiggleBot if it's not driving straight
+   * @param dir: if the GiggleBot drives to the left, then correct to the right. Vice versa.
+   * @param trim_value: a correction value between 0 and 100, but most likely below 10
+   */
+  //% blockId="gigglebot_trim_main" block="correct towards %dir|by %trim_value"
+  //% weight=60
+  export function motorTrimSetMain(dir: gigglebotWhichTurnDirection, trim_value: number) {
+    motorTrimSet(dir, trim_value)
+  }
 
   /**
    * You can set the speed for each individual motor or both together. The higher the speed the less control the robot has.
@@ -470,7 +481,7 @@ namespace gigglebot {
   /**
    * A thin black line would fall between the two sensors. The GiggleBot will stop when both sensors are reading black.
    * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
-   * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop following line" block.
+   * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop" block.
    * @param type_of_line thin line or thick line
    * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
   */
@@ -868,6 +879,8 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   ///////////////////////////////////////////////////////////////////////
   /////////// MORE BLOCKS
   ///////////////////////////////////////////////////////////////////////
+
+
 
 
   /**
