@@ -878,8 +878,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
    * @param trim_value: a correction value between 0 and 100, but most likely below 10
    */
   //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
-  //% weight=100
-  //% advanced=true
+  //% weight=50
   export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
       if (trim_value < 0) { 
           trim_value = 0
