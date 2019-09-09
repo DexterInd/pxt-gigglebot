@@ -1,6 +1,6 @@
 {
     "name": "gigglebot",
-    "version": "1.2.6",
+    "version": "1.2.2",
     "dependencies": {
         "core": "*",
         "gigglesensors": "github:dexterind/pxt-gigglesensors#v0.1"
