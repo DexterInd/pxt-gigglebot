@@ -434,17 +434,6 @@ namespace gigglebot {
       light_follow_in_action = false
       line_follow_in_action = false
   }
-  
-    /**
-   * This allows the user to correct the motors on the GiggleBot if it's not driving straight
-   * @param dir: if the GiggleBot drives to the left, then correct to the right. Vice versa.
-   * @param trim_value: a correction value between 0 and 100, but most likely below 10
-   */
-  //% blockId="gigglebot_trim_main" block="correct towards %dir|by %trim_value"
-  //% weight=60
-  export function motorTrimSetMain(dir: gigglebotWhichTurnDirection, trim_value: number) {
-    motorTrimSet(dir, trim_value)
-  }
 
 
   /**
