@@ -182,6 +182,21 @@ namespace gigglebot {
   }
 
   /**
+  * Reads left or right motor power
+  * @param which left or right
+  */
+  //% blockId="gigglebot_read_motor_power" block="%which| power"
+  //% advanced=true
+  //% weight=80
+  export function readMotorPower(which: gigglebotWhichUniqueMotor): number {
+    if (which == gigglebotWhichUniqueMotor.Left)
+      return motorPowerLeft
+    if (which == gigglebotWhichUniqueMotor.Right)
+      return motorPowerRight
+    return 0
+}
+
+  /**
    * Assigns a new power value to the left motor
    * Values from 101 through 127, and -128 through -101 are used to float the  motor.
    * @param leftpower new value for the power setting of the left motor (-100 < leftpower < 100)
@@ -276,7 +291,7 @@ namespace gigglebot {
   /**
    * Will let GiggleBot move forward or backward for a number of milliseconds.
    * Distance covered during that time is related to the freshness of the batteries.
-   * @param dir forward or backward; 
+   * @param dir forward or backward;
    * @param delay for how many milliseconds; eg: 1000
    */
   //% blockId="gigglebotDriveMillisec" block="drive %dir|for %delay|ms"
@@ -304,7 +319,7 @@ namespace gigglebot {
       stop()
   }
 
-  /** 
+  /**
    * GiggleBot will spin on itself for the provided number of milliseconds, like a turn but staying in the same spot. Especially useful when drawing
    * @param turn_dir turning left or right
    * @param delay how many milliseconds; eg: 1000
@@ -319,8 +334,8 @@ namespace gigglebot {
       stop()
   }
 
-  /** 
-   * GiggleBot will drive forward while steering to one side for the provided number of milliseconds. 
+  /**
+   * GiggleBot will drive forward while steering to one side for the provided number of milliseconds.
    * Useful when it needs to go around an obstacle, or orbit around an object.
    * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
    * @param percent the variation in power between left and right; eg: 0, 20, 50, 100
@@ -370,7 +385,7 @@ namespace gigglebot {
       }
   }
 
-  /** 
+  /**
    * GiggleBot will spin on itself until told otherwise, like a turn but staying in the same spot. Especially useful when drawing.
    * @param turn_dir left or right;
    */
@@ -385,8 +400,8 @@ namespace gigglebot {
       }
   }
 
-  /** 
-   * GiggleBot will drive forward while steering to one side. 
+  /**
+   * GiggleBot will drive forward while steering to one side.
    * Useful when it needs to go around an obstacle, or orbit around an object.
    * 0% means no steering, the same as the 'drive' block. 100% is the same as the 'turn' block.
    * @param percent value between 0 and 100 to control the amount of steering
@@ -431,6 +446,18 @@ namespace gigglebot {
     motorTrimSet(dir, trim_value)
   }
 
+
+  /**
+   * This allows the user to correct the motors on the GiggleBot if it's not driving straight
+   * @param dir: if the GiggleBot drives to the left, then correct to the right. Vice versa.
+   * @param trim_value: a correction value between 0 and 100, but most likely below 10
+   */
+  //% blockId="gigglebot_trim_main" block="correct towards %dir|by %trim_value"
+  //% weight=60
+  export function motorTrimSetMain(dir: gigglebotWhichTurnDirection, trim_value: number) {
+    motorTrimSet(dir, trim_value)
+  }
+
   /**
    * You can set the speed for each individual motor or both together. The higher the speed the less control the robot has.
    * You may need to correct the robot (see block in "more..." section).  A faster robot needs more correction than a slower one.
@@ -449,7 +476,7 @@ namespace gigglebot {
       motorPowerLeft = currentMotorPower
       motorPowerRight = currentMotorPower
 
-      // apply trim 
+      // apply trim
       if (trimRight != 0 && motor != gigglebotWhichMotor.Left) {
           if (speed > 0) {
               motorPowerRight = currentMotorPower - Math.idiv(trimRight * currentMotorPower, 100);
@@ -470,8 +497,8 @@ namespace gigglebot {
   /////////// LINE FOLLOWER BLOCKS
   ///////////////////////////////////////////////////////////////////////
 
-  /** 
-   * A javascript method to change the line follower threshold. 
+  /**
+   * A javascript method to change the line follower threshold.
    * Not exposed as a block
    */
   export function setLineFollowerThreshold(newThreshold: number) {
@@ -489,7 +516,7 @@ namespace gigglebot {
   //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
   //% weight=50
   export function lineFollow(type_of_line: gigglebotLineType, specific_line_threshold: number = 200) {
-      // test if the line follower is already in action in case this was put 
+      // test if the line follower is already in action in case this was put
       // in a loop. Only launch one in background
       if (!line_follow_in_action) {
           line_follow_in_action = true
@@ -555,7 +582,7 @@ namespace gigglebot {
    * Will follow a spotlight shone on its eyes. The GiggleBot will stop following
    * a light when it detects it is in darkness. It will not automatically
    * restart following a light once it leaves darkness
-   * Using javascript, you can switch to light avoiding mode by changing the first 
+   * Using javascript, you can switch to light avoiding mode by changing the first
    * parameter to "gigglebotLightFollowMode.Avoid"
    * @param mode either follow or avoid light
    * @param sensitivity how much of a difference between the two sides is needed for GiggleBot to react; eg: 20
@@ -564,10 +591,10 @@ namespace gigglebot {
   //% blockId="gigglebot_follow_light" block="follow light"
   //% group="Light Sensors"
   //% weight=80
-export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow, 
-                            sensitivity: number = 20, 
+export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollowMode.Follow,
+                            sensitivity: number = 20,
                             light_threshold: number = 10) {
-  // test if the light follower is already in action in case this was put 
+  // test if the light follower is already in action in case this was put
   // in a loop. Only launch one in background
   if ( ! light_follow_in_action) {
     light_follow_in_action = true
@@ -594,19 +621,19 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
             driveStraight(gigglebotWhichDriveDirection.Forward)
         }
 
-        if (mode == gigglebotLightFollowMode.Follow && 
-            lightSensors[0] < light_threshold && 
+        if (mode == gigglebotLightFollowMode.Follow &&
+            lightSensors[0] < light_threshold &&
             lightSensors[1] < light_threshold) {
             giveup_count = giveup_count + 1
         }
-        else if (mode == gigglebotLightFollowMode.Avoid && 
-            lightSensors[0] > 1000 - light_threshold && 
+        else if (mode == gigglebotLightFollowMode.Avoid &&
+            lightSensors[0] > 1000 - light_threshold &&
             lightSensors[1] > 1000 - light_threshold) {
             giveup_count = giveup_count + 1
         }
         else {
             // must have consecutive readings before giving up
-            giveup_count = 0  
+            giveup_count = 0
         }
 
         // play well with others
@@ -622,12 +649,12 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
 }
 
     /**
-     * Will orient the GiggleBot towards a light, just once. 
+     * Will orient the GiggleBot towards a light, just once.
      * To do a light following robot, this block needs to be inserted in a loop.
      * You control when the loop ends.
      * @param diff the difference between the two sensors that will trigger a reaction; eg: 50
      * @param delay how long in milliseconds to turn for before stopping; eg: 200
-     * 
+     *
      */
     //% blockId="gigglebot_orient_light" block="turn %dir light"
     //% group="Light Sensors"
@@ -671,8 +698,8 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   }
 
   /**
-  * Reads left or right light sensor. 
-  * The light sensors are placed in front of each eye neopixel, they're tiny! 
+  * Reads left or right light sensor.
+  * The light sensors are placed in front of each eye neopixel, they're tiny!
   * The range is 0 through 1023, although in reality rarely above ~950.
   * @param which left or right
   */
@@ -695,7 +722,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   export function lightTest(level: gigglebotLightLevel, threshold: number = 10 ): boolean {
       lightSensorsRaw()
       for (let _i = 0; _i < lightSensors.length; _i++) {
-        // if we're lookin for darkness and one of the sensor is above the threshold, 
+        // if we're lookin for darkness and one of the sensor is above the threshold,
         // then we don't have darkness
           if (level == gigglebotLightLevel.Darkness && lightSensors[_i] > threshold) {
               return false
@@ -805,7 +832,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   //% group="Temperature Humidity Pressure (Add-On)"
   //% blockId="gigglebot_temperature" block="temperature in %scale"
   export function temperature(scale: gigglebotTempScale): number {
-    if (thpSensorInitDone == false) 
+    if (thpSensorInitDone == false)
     {
       TempHumPressSensor.initialize()
       thpSensorInitDone = true
@@ -813,7 +840,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
     let temp =  TempHumPressSensor.read_temperature()
     if (scale == gigglebotTempScale.Celsius) {
       return (Math.round(temp))
-    } 
+    }
     else {
       return (Math.round((temp * 1.8)+32))
     }
@@ -825,7 +852,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   //% group="Temperature Humidity Pressure (Add-On)"
   //% blockId="gigglebot_humidity" block="humidity"
   export function humidity(): number {
-    if (thpSensorInitDone == false) 
+    if (thpSensorInitDone == false)
     {
       TempHumPressSensor.initialize()
       thpSensorInitDone = true
@@ -842,7 +869,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
     // call to read_temperature() to udpate temperature compensation
     TempHumPressSensor.read_temperature()
 
-    if (thpSensorInitDone == false) 
+    if (thpSensorInitDone == false)
     {
       TempHumPressSensor.initialize()
       thpSensorInitDone = true
@@ -863,7 +890,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   //% blockId="gigglebot_dewpoint" block="dew point in %scale"
   //% advanced=true
   export function dewPoint(scale: gigglebotTempScale): number {
-    if (thpSensorInitDone == false) 
+    if (thpSensorInitDone == false)
     {
       TempHumPressSensor.initialize()
       thpSensorInitDone = true
@@ -885,14 +912,14 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
 
   /**
    * This allows the user to correct the motors on the GiggleBot if it's not driving straight
-   * @param dir: if the GiggleBot drives to the left, then correct to the right. Vice versa. 
+   * @param dir: if the GiggleBot drives to the left, then correct to the right. Vice versa.
    * @param trim_value: a correction value between 0 and 100, but most likely below 10
    */
   //% blockId="gigglebot_trim" block="correct towards %dir|by %trim_value"
   //% weight=100
   //% advanced=true
   export function motorTrimSet(dir: gigglebotWhichTurnDirection, trim_value: number) {
-      if (trim_value < 0) { 
+      if (trim_value < 0) {
           trim_value = 0
       }
       if (dir == gigglebotWhichTurnDirection.Left) {
@@ -915,7 +942,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
       }
   }
 
-  /** 
+  /**
    * Assigns power to a motor, or the same power to both motors
    * Values from 101 through 127, and -128 through -101 are used to float the  motor.
    * @param motor:  left or right motor, or both
@@ -944,7 +971,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   }
 
   /**
-   * Assigns potentially different powers to both motors in one call.  
+   * Assigns potentially different powers to both motors in one call.
    * Values from 101 through 127, and -128 through -101 are used to float the  motor.
    * @param left_power: the power to assign to the left motor (between -100 and 100)
    * @param right_power: the power to assign to the right motor (between -100 and 100)
@@ -959,6 +986,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
       buf.setNumber(NumberFormat.UInt8BE, 2, left_power)
       pins.i2cWriteBuffer(ADDR, buf, false);
   }
+
 
   //% blockId="gigglebot_get_firmware" block="firmware version number"
   //% advanced=true
