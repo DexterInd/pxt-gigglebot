@@ -20,6 +20,7 @@
   "gigglebot.lineTest|block": "une ligne %which| est détectée",
   "gigglebot.motorPowerAssignBoth|block": "régler la puissance du moteur de gauche à  %left_power|et celui de droite à | %right_power",
   "gigglebot.motorPowerAssign|block": "régler la puissance pour %motor| à | %power",
+  "gigglebot.motorTrimSetMain|block": "corriger la direction vers la %dir|par  %trim_value",
   "gigglebot.motorTrimSet|block": "corriger la direction vers la %dir|par  %trim_value",
   "gigglebot.pressure|block": "pression en %pressureScale",
   "gigglebot.servoMove|block": "positioner le servo de  %which| à |%degree",
