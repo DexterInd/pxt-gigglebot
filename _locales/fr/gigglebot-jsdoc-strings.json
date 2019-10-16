@@ -21,7 +21,7 @@
   "gigglebot.lightFollow|param|mode": "suivre ou éviter la lumière",
   "gigglebot.lightFollow|param|sensitivity": "la différence requise entre les deux capteurs de lumière pour faire tourner le GiggleBot; eg: 20",
   "gigglebot.lightOrient": "Le GiggleBot s'orientera vers la lumière. \r\nPour que le GiggleBot suive la lumière, ce bloc doit être appelé plusieurs fois, comme dans une boucle par exemple.\r\n",
-  "gigglebot.lightOrient|param|delay": "delai (en millisecondes) avant d'arrêter de tourner; eg: 200",
+  "gigglebot.lightOrient|param|delay": "délai (en millisecondes) avant d'arrêter de tourner; eg: 200",
   "gigglebot.lightOrient|param|diff": "la différence entre les deux capteurs de lumière qui sera suffisante pour faire réagir le Gigglebot; eg: 50",
   "gigglebot.lightReadSensor": "Lire le capteur de lumière de gauche ou de droite. \nLes capteurs de lumière sont situés juste en avant des yeux, ils sont tout petits!\nLes valeurs vont de 0 à 1023, en réalité rarement plus que ~950.",
   "gigglebot.lightReadSensor|param|which": "gauche ou droite",
