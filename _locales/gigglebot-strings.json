@@ -20,8 +20,10 @@
   "gigglebot.lineTest|block": "%which|line is detected",
   "gigglebot.motorPowerAssignBoth|block": "set left power to %left_power|and right to | %right_power",
   "gigglebot.motorPowerAssign|block": "set power on %motor| to | %power",
+  "gigglebot.motorTrimSetMain|block": "correct towards %dir|by %trim_value",
   "gigglebot.motorTrimSet|block": "correct towards %dir|by %trim_value",
   "gigglebot.pressure|block": "pressure in %pressureScale",
+  "gigglebot.readMotorPower|block": "%which| power",
   "gigglebot.servoMove|block": "set %which|servo to |%degree",
   "gigglebot.setSpeed|block": "set %motor | speed to %speed",
   "gigglebot.spinMillisec|block": "spin %turn_dir|for %delay|ms",
@@ -69,8 +71,8 @@
   "gigglebotWhichUniqueMotor.Right|block": "right motor",
   "gigglebotWhichUnitSystem.inches|block": "inches",
   "gigglebotWhichUnitSystem.mm|block": "mm",
-  "gigglebot|block": "GiggleBot",
-  "{id:category}Gigglebot": "GiggleBot",
+  "gigglebot|block": "gigglebot",
+  "{id:category}Gigglebot": "Gigglebot",
   "{id:group}Distance Sensor (Add-On)": "Distance Sensor (Add-On)",
   "{id:group}Firmware": "Firmware",
   "{id:group}Light Sensors": "Light Sensors",
@@ -79,4 +81,4 @@
   "{id:group}Servo": "Servo",
   "{id:group}Temperature Humidity Pressure (Add-On)": "Temperature Humidity Pressure (Add-On)",
   "{id:group}Voltage": "Voltage"
-  }
+}
