@@ -150,7 +150,7 @@ namespace gigglebot {
    * Load pxt-giggle for radio and neopixels
    */
   let ADDR = 0x04
-  let line_follower_threshold = 175
+  let line_follower_threshold = 200
   let light_level_threshold = 850
   let currentMotorPower = gigglebotWhichSpeed.Normal;
   let trimLeft = 0
@@ -499,7 +499,7 @@ namespace gigglebot {
    * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
    * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop" block.
    * @param type_of_line thin line or thick line
-   * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
+   * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition. Default is 200.
   */
   //% group="Line Follower"
   //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
