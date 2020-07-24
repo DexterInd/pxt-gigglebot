@@ -164,7 +164,7 @@ namespace gigglebot {
   let lineSensors = [0, 0]
   let lightSensors = [0, 0]
   // turn motor power off
-  stop()
+  // stop()
 
 
   /**
