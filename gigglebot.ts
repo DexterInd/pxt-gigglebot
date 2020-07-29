@@ -165,8 +165,7 @@ namespace gigglebot {
   let lightSensors = [0, 0]
   let reverse_motor = 1
   // turn motor power off
-  //   stop()
-
+  // stop()
 
   /**
    * return current power setting of the left motor
@@ -510,7 +509,7 @@ namespace gigglebot {
    * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
    * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop" block.
    * @param type_of_line thin line or thick line
-   * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
+   * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition. Default is 175.
   */
   //% group="Line Follower"
   //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
