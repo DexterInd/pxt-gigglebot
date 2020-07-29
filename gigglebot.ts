@@ -163,9 +163,9 @@ namespace gigglebot {
   let light_follow_in_action = false;
   let lineSensors = [0, 0]
   let lightSensors = [0, 0]
+  let reverse_motor = 1
   // turn motor power off
-  stop()
-
+  // stop()
 
   /**
    * return current power setting of the left motor
@@ -202,7 +202,7 @@ namespace gigglebot {
    * @param leftpower new value for the power setting of the left motor (-100 < leftpower < 100)
    */
   export function setLeftPower(leftpower: number){
-      motorPowerLeft = leftpower
+      motorPowerLeft = leftpower  * reverse_motor
   }
   /**
    * Assigns a new power value to the right motor
@@ -211,7 +211,7 @@ namespace gigglebot {
    */
   //% rightpower.min= -100 rightpower.max = 100
   export function setRightPower(rightpower: number) {
-      motorPowerRight = rightpower
+      motorPowerRight = rightpower * reverse_motor
   }
 
   /**
@@ -287,6 +287,16 @@ namespace gigglebot {
   ////////////////////////////////////////////////////////////////////////
   ////////// BLOCKS
   ///////////////////////////////////////////////////////////////////////
+
+  /**
+    * Will invert the power sent to the motors to get a different behavior.
+    * Call this block once in the OnStart block.
+   */
+  //% blockId="gigglebotInvert" block="invert motors"
+  //% weight=100
+ export function invertMotors() {
+    reverse_motor = -1 * reverse_motor
+  }
 
   /**
    * Will let GiggleBot move forward or backward for a number of milliseconds.
@@ -499,7 +509,7 @@ namespace gigglebot {
    * A thick black line would have the two sensors on top of it at all times. The GiggleBot will stop when both sensors are reading white.
    * Calling this block puts the GiggleBot into "Line Follower Mode". To exit "Line Follower Mode" you need to call the "stop" block.
    * @param type_of_line thin line or thick line
-   * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition.
+   * @param specific_line_threshold overwrite the default line threshold to adapt to your particular tape and lighting condition. Default is 175.
   */
   //% group="Line Follower"
   //% blockId="gigglebot_follow_line" block="follow a %type_of_line| black line"
@@ -943,7 +953,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   export function motorPowerAssign(motor: gigglebotWhichMotor, power: number) {
       let buf = pins.createBuffer(3)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWER)
-      buf.setNumber(NumberFormat.UInt8BE, 2, power)
+      buf.setNumber(NumberFormat.UInt8BE, 2, power * reverse_motor)
       // activate right motor
       if (motor == gigglebotWhichMotor.Right) {
           buf.setNumber(NumberFormat.UInt8BE, 1, 0x01)
@@ -971,8 +981,8 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   export function motorPowerAssignBoth(left_power: number, right_power: number) {
       let buf = pins.createBuffer(3)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.SET_MOTOR_POWERS)
-      buf.setNumber(NumberFormat.UInt8BE, 1, right_power)
-      buf.setNumber(NumberFormat.UInt8BE, 2, left_power)
+      buf.setNumber(NumberFormat.UInt8BE, 1, right_power * reverse_motor)
+      buf.setNumber(NumberFormat.UInt8BE, 2, left_power * reverse_motor)
       pins.i2cWriteBuffer(ADDR, buf, false);
   }
 
