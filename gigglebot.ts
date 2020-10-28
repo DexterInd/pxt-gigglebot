@@ -997,7 +997,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
        */
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_FIRMWARE_VERSION)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let val = pins.i2cReadBuffer(ADDR, 2)
       return val.getNumber(NumberFormat.UInt16BE, 0);
   }
@@ -1022,7 +1022,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
        */
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_VOLTAGE_BATTERY)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let val = pins.i2cReadBuffer(ADDR, 2)
       return val.getNumber(NumberFormat.UInt16BE, 0);
   }
@@ -1036,7 +1036,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   export function lineSensorsRaw(): number[] {
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LINE_SENSORS)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
       for (let _i = 0; _i < 2; _i++) {
           lineSensors[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
@@ -1053,7 +1053,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   export function lightSensorsRaw(): number[] {
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LIGHT_SENSORS)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
       for (let _i = 0; _i < 2; _i++) {
           lightSensors[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
