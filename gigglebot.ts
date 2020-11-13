@@ -305,7 +305,7 @@ namespace gigglebot {
    * @param delay for how many milliseconds; eg: 1000
    */
   //% blockId="gigglebotDriveMillisec" block="drive %dir|for %delay|ms"
-  //% weight=100
+  //% weight=98
   //% delay.min=0
   export function driveMillisec(dir: gigglebotWhichDriveDirection, delay: number) {
       if (delay < 0) delay = 0
@@ -320,7 +320,7 @@ namespace gigglebot {
    * @param delay for how many milliseconds; eg: 1000
    */
   //% blockId="gigglebotTurnMillisec" block="turn %turn_dir|for %delay|ms"
-  //% weight=99
+  //% weight=96
   //% delay.min=0
   export function turnMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
       if (delay < 0) delay = 0
@@ -335,7 +335,7 @@ namespace gigglebot {
    * @param delay how many milliseconds; eg: 1000
    */
   //% blockId="gigglebotSpinMillisec" block="spin %turn_dir|for %delay|ms"
-  //% weight=98
+  //% weight=94
   //% delay.min=0
   export function spinMillisec(turn_dir: gigglebotWhichTurnDirection, delay: number) {
       if (delay < 0) delay = 0
@@ -354,7 +354,7 @@ namespace gigglebot {
    *      */
   //% blockId="gigglebotSteerMillisec" block="steer %percent| towards the %dir| for %delay| ms"
   //% percent.min=0 percent.max=100
-  //% weight=97
+  //% weight=92
   export function steerMillisec(percent: number, dir: gigglebotWhichTurnDirection, delay: number) {
       if (delay < 0) delay = 0
       if (percent < 0) percent = 0
@@ -547,6 +547,7 @@ namespace gigglebot {
   */
   //% blockId="gigglebot_test_line" block="%which|line is detected"
   //% advanced=true
+  //% weight=90
   //% group="Line Follower"
   export function lineTest(color: gigglebotLineColor): boolean {
       lineSensorsRaw()
@@ -567,6 +568,7 @@ namespace gigglebot {
   */
   //% blockId="gigglebot_read_line_sensors" block="%which|line sensor"
   //% advanced=true
+  //% weight=80
   //% group="Line Follower"
   export function lineReadSensor(which: gigglebotWhichTurnDirection): number {
       lineSensorsRaw()
@@ -697,26 +699,13 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   }
 
   /**
-  * Reads left or right light sensor.
-  * The light sensors are placed in front of each eye neopixel, they're tiny!
-  * The range is 0 through 1023, although in reality rarely above ~950.
-  * @param which left or right
-  */
-  //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
-  //% advanced=true
-  //% group="Light Sensors"
-  export function lightReadSensor(which: gigglebotWhichTurnDirection): number {
-      lightSensorsRaw()
-      return lightSensors[which]
-}
-
-  /**
    * Will return true if both light sensors are detecting bright light, or darkness.
    * @param level: bright or darness
    * @param threshold: how sensitive the detection will be. The smaller the number, the less sensitive it will be.
   */
   //% blockId="gigglebot_test_light" block="%level| is detected"
   //% advanced=true
+  //% weight=90
   //% group="Light Sensors"
   export function lightTest(level: gigglebotLightLevel, threshold: number = 10 ): boolean {
       lightSensorsRaw()
@@ -735,6 +724,21 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
       }
       return true
   }
+
+  /**
+  * Reads left or right light sensor.
+  * The light sensors are placed in front of each eye neopixel, they're tiny!
+  * The range is 0 through 1023, although in reality rarely above ~950.
+  * @param which left or right
+  */
+  //% blockId="gigglebot_read_light_sensors" block="%which|light sensor"
+  //% advanced=true
+  //% weight=80
+  //% group="Light Sensors"
+  export function lightReadSensor(which: gigglebotWhichTurnDirection): number {
+    lightSensorsRaw()
+    return lightSensors[which]
+}
 
   ////////////////////////////////////////////////////////////////////////
   /////////// DISTANCE SENSOR
@@ -997,7 +1001,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
        */
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_FIRMWARE_VERSION)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let val = pins.i2cReadBuffer(ADDR, 2)
       return val.getNumber(NumberFormat.UInt16BE, 0);
   }
@@ -1022,7 +1026,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
        */
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_VOLTAGE_BATTERY)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let val = pins.i2cReadBuffer(ADDR, 2)
       return val.getNumber(NumberFormat.UInt16BE, 0);
   }
@@ -1036,7 +1040,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   export function lineSensorsRaw(): number[] {
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LINE_SENSORS)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
       for (let _i = 0; _i < 2; _i++) {
           lineSensors[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
@@ -1053,7 +1057,7 @@ export function lightFollow(mode: gigglebotLightFollowMode = gigglebotLightFollo
   export function lightSensorsRaw(): number[] {
       let buf = pins.createBuffer(1)
       buf.setNumber(NumberFormat.UInt8BE, 0, gigglebotI2CCommands.GET_LIGHT_SENSORS)
-      pins.i2cWriteBuffer(ADDR, buf)
+      pins.i2cWriteBuffer(ADDR, buf, true)
       let raw_buffer = pins.i2cReadBuffer(ADDR, 3)
       for (let _i = 0; _i < 2; _i++) {
           lightSensors[_i] = (raw_buffer.getNumber(NumberFormat.UInt8BE, _i) << 2)
